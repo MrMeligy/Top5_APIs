@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Top5.Domain.Enums;
 
 namespace Top5.Domain.Entities
 {
@@ -15,7 +16,9 @@ namespace Top5.Domain.Entities
         public string country { get; set; }
         public string pitch { get; set; }
         public DateTime kickOff { get; set; }
-        public int statues { get; set; } = 0;
+        public MatchStatues statues { get; set; } = MatchStatues.Approved;
+        public string matchFormat { get; set; }
+        public bool isComptitve { get; set; }
         public Team homeTeam { get; set; }
         public Team awayTeam { get; set; }
 

@@ -1,4 +1,6 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Top5.Api.DTOs;
 using Top5.Business.Services;
 using Top5.Domain.Entities;
 
@@ -10,10 +12,11 @@ namespace Top5.Api.Controllers
     public class MatchesController : ControllerBase
     {
         private readonly IMatchService _matchService;
-
-        public MatchesController(IMatchService matchService)
+        private readonly IMapper _mapper;
+        public MatchesController(IMatchService matchService,IMapper mapper)
         {
             _matchService = matchService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -25,6 +28,17 @@ namespace Top5.Api.Controllers
         {
             var matches = await _matchService.GetAllAsync();
             return Ok(matches);
+        }
+        /// <summary>
+        /// Get all matche view in application
+        /// </summary>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(IEnumerable<MatchDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MatchDto>>> GetAllMatchesView()
+        {
+            var matches = await _matchService.GetAllWithTeamsAsync();
+            var dto = _mapper.Map<IEnumerable<MatchDto>>(matches);
+            return Ok(dto);
         }
 
         /// <summary>

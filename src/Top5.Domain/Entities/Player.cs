@@ -19,10 +19,5 @@ namespace Top5.Domain.Models
         public int level { get; set; }
         public bool gender { get; set; }
         public DateOnly dob { get; set; }
-        public int goals{ get; set; }
-        public int assists{ get; set; }
-        public int matches { get; set; }
-        public int saves { get; set; }
-        public Double rate { get; set; }
     }
 }

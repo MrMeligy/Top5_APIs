@@ -5,9 +5,9 @@ namespace Top5.Business.Services
 {
     public class MatchService : IMatchService
     {
-        private readonly IRepository<Match> _repository;
+        private readonly IMatchRepository _repository;
 
-        public MatchService(IRepository<Match> repository)
+        public MatchService(IMatchRepository repository)
         {
             _repository = repository;
         }
@@ -44,6 +44,15 @@ namespace Top5.Business.Services
         public async Task<bool> DeleteAsync(Guid id)
         {
             return await _repository.DeleteAsync(id);
+        }
+        //special repo
+        public async Task<IEnumerable<Match>> GetAllWithTeamsAsync()
+        {
+            return await _repository.GetAllWithTeamsAsync();
+        }
+        public async Task<Match?> GetByIdWithTeamsAsync(Guid id)
+        {
+            return await _repository.GetByIdWithTeamsAsync(id);
         }
     }
 }

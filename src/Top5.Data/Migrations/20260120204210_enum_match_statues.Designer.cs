@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Top5.Data;
 
@@ -11,9 +12,11 @@ using Top5.Data;
 namespace Top5.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260120204210_enum_match_statues")]
+    partial class enum_match_statues
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,15 +54,8 @@ namespace Top5.Data.Migrations
                     b.Property<Guid>("homeTeamId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("isComptitve")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("kickOff")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("matchFormat")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("pitch")
                         .IsRequired()

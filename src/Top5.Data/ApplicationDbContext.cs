@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Top5.Domain.Entities;
+using Top5.Domain.Enums;
 using Top5.Domain.Models;
 
 namespace Top5.Data
@@ -52,6 +53,12 @@ namespace Top5.Data
                     .WithMany()
                     .HasForeignKey(e => e.awayTeamId)
                     .OnDelete(DeleteBehavior.Restrict);
+                entity.Property(x => x.statues)
+              .HasConversion<int>();
+
+                // Default في قاعدة البيانات
+                entity.Property(x => x.statues)
+                      .HasDefaultValue(MatchStatues.Approved);
             });
 
             // Configure TeamPlayers
