@@ -1,7 +1,5 @@
-﻿using Top5.Domain.Entities;
-using Top5.Domain.Enums;
-
-namespace Top5.Api.DTOs
+﻿using Top5.Domain.Enums;
+namespace Top5.Contracts.DTOs
 {
     public class MatchDto
     {

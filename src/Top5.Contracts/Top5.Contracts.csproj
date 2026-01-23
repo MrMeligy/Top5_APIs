@@ -2,8 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Top5.Domain\Top5.Domain.csproj" />
-    <ProjectReference Include="..\Top5.Data\Top5.Data.csproj" />
-    <ProjectReference Include="..\Top5.Contracts\Top5.Contracts.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

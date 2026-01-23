@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using Top5.Domain.Models;
 
 namespace Top5.Domain.Entities
@@ -15,8 +16,11 @@ namespace Top5.Domain.Entities
         public int assists { get; set; }
         public int saves { get; set; }
         public double rate { get; set; }
+        [JsonIgnore]
         public Match match { get; set; }
+        [JsonIgnore]
         public Team team{ get; set; }
+        [JsonIgnore]
         public Player player{ get; set; }
     }
 }

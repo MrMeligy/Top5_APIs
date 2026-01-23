@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Top5.Business\Top5.Business.csproj" />
     <ProjectReference Include="..\Top5.Data\Top5.Data.csproj" />
+    <ProjectReference Include="..\Top5.Contracts\Top5.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

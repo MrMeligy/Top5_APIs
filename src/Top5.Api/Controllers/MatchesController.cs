@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Top5.Api.DTOs;
+using Top5.Contracts.DTOs;
 using Top5.Business.Services;
 using Top5.Domain.Entities;
 
@@ -54,6 +54,22 @@ namespace Top5.Api.Controllers
                 return NotFound();
 
             return Ok(match);
+        }
+
+        /// <summary>
+        /// Get a match by ID
+        /// </summary>
+        [HttpGet("{id:guid}/view")]
+        [ProducesResponseType(typeof(Match), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MatchDto>> GetMatchWithTeamsById(Guid id)
+        {
+            var match = await _matchService.GetByIdWithTeamsAsync(id);
+            if (match == null)
+                return NotFound();
+
+            var dto = _mapper.Map<MatchDto>(match);
+            return Ok(dto);
         }
 
         /// <summary>

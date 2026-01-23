@@ -1,6 +1,6 @@
 ﻿
 using AutoMapper;
-using Top5.Api.DTOs;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Mapping
