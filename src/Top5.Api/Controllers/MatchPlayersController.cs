@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Controllers
@@ -10,10 +12,60 @@ namespace Top5.Api.Controllers
     public class MatchPlayersController : ControllerBase
     {
         private readonly IMatchPlayersService _matchPlayersService;
+        private readonly IMapper _mapper;
 
-        public MatchPlayersController(IMatchPlayersService matchPlayersService)
+        public MatchPlayersController(IMatchPlayersService matchPlayersService,IMapper mapper)
         {
+            _mapper = mapper;
             _matchPlayersService = matchPlayersService;
+        }
+
+        /// <summary>
+        /// Get all match players
+        /// </summary>
+        [HttpGet("{id:guid}/view")]
+        [ProducesResponseType(typeof(MatchPlayerDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<MatchPlayerDto>> GetByMatchPlayerViewAsync(Guid id)
+        {
+            var matchPlayers = await _matchPlayersService.GetByMatchPlayerViewAsync(id);
+            var matchPlayersDto = _mapper.Map<MatchPlayerDto>(matchPlayers);
+            return Ok(matchPlayersDto);
+        }
+
+        /// <summary>
+        /// Get all match players
+        /// </summary>
+        [HttpGet("{playerId:guid}/PlayerView")]
+        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetByPlayerMatchesAsync(Guid playerId)
+        {
+            var matchPlayers = await _matchPlayersService.GetByPlayerMatchesAsync(playerId);
+            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
+            return Ok(matchPlayersDto);
+        }
+
+        /// <summary>
+        /// Get all match players
+        /// </summary>
+        [HttpGet("{matchId:guid}/MatchView")]
+        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetByMatchPlayersViewAsync(Guid matchId)
+        {
+            var matchPlayers = await _matchPlayersService.GetByMatchPlayersViewAsync(matchId);
+            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
+            return Ok(matchPlayersDto);
+        }
+
+        /// <summary>
+        /// Get all match players
+        /// </summary>
+        [HttpGet("{matchId:guid}/{playerId:guid}")]
+        [ProducesResponseType(typeof(MatchPlayerDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<MatchPlayerDto>> GetMatchAndPlayerAsync(Guid matchId,Guid playerId)
+        {
+            var matchPlayers = await _matchPlayersService.GetMatchAndPlayerAsync(matchId,playerId);
+            var matchPlayersDto = _mapper.Map<MatchPlayerDto>(matchPlayers);
+            return Ok(matchPlayers);
         }
 
         /// <summary>

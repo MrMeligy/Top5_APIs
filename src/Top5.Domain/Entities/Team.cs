@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using Top5.Domain.Models;
 
 namespace Top5.Domain.Entities
@@ -22,7 +23,9 @@ namespace Top5.Domain.Entities
         public int cityRank { get; set; }
         public int countryRank { get; set; }
         public int points { get; set; } = 0;
+        [JsonIgnore]
         public Player captin { get; set; }
+        [JsonIgnore]
         public ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 }

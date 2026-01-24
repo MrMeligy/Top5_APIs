@@ -21,6 +21,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<IMatchPlayerRepository, MatchPlayerRepository>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+
+
 
 // Register Services
 builder.Services.AddScoped<IPlayerService, PlayerService>();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Top5.Domain.Entities;
+using Top5.Domain.Enums;
 
 namespace Top5.Domain.Models
 {
@@ -15,9 +17,10 @@ namespace Top5.Domain.Models
         public string country { get; set; }
         public string city { get; set; }
         public string nationality { get; set; }
-        public string position { get; set; }
+        public Positions position { get; set; }
         public int level { get; set; }
         public bool gender { get; set; }
         public DateOnly dob { get; set; }
+        
     }
 }

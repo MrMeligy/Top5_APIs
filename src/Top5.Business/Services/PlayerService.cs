@@ -1,3 +1,4 @@
+using Top5.Contracts.DTOs;
 using Top5.Data.Repositories;
 using Top5.Domain.Models;
 
@@ -5,13 +6,36 @@ namespace Top5.Business.Services
 {
     public class PlayerService : IPlayerService
     {
-        private readonly IRepository<Player> _repository;
+        private readonly IPlayerRepository _repository;
 
-        public PlayerService(IRepository<Player> repository)
+        public PlayerService(IPlayerRepository repository)
         {
             _repository = repository;
         }
-
+        public async Task<PlayerDto> GetPlayerDtoById(Guid id)
+        {
+            var p = await _repository.GetPlayerDtoAsync(id);
+            
+            return new PlayerDto
+            {
+                id = p.id,
+                username = p.username,
+                picUrl = p.picUrl,
+                country = p.country,
+                city = p.city,
+                nationality = p.nationality,
+                position = p.position,
+                dob = p.dob,
+                phone = p.phone,
+                gender = p.gender,
+                level = p.level,
+                goals = p.goals,
+                assists = p.assists,
+                saves = p.saves,
+                matchCount = p.matchCount,
+                rate = p.rate
+            };
+        }
         public async Task<Player?> GetByIdAsync(Guid id)
         {
             return await _repository.GetByIdAsync(id);
@@ -45,6 +69,8 @@ namespace Top5.Business.Services
         {
             return await _repository.DeleteAsync(id);
         }
+
+        
     }
 }
 

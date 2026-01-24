@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Models;
 
 namespace Top5.Api.Controllers
@@ -25,6 +26,16 @@ namespace Top5.Api.Controllers
         {
             var players = await _playerService.GetAllAsync();
             return Ok(players);
+        }
+        /// <summary>
+        /// Get PlayerDto
+        /// </summary>
+        [HttpGet("{id:guid}/view")]
+        [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<PlayerDto>> GetPlayerDto(Guid id)
+        {
+            var player = await _playerService.GetPlayerDtoById(id);
+            return Ok(player);
         }
 
         /// <summary>
