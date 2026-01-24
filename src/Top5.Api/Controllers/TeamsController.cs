@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Controllers
@@ -10,10 +12,11 @@ namespace Top5.Api.Controllers
     public class TeamsController : ControllerBase
     {
         private readonly ITeamService _teamService;
-
-        public TeamsController(ITeamService teamService)
+        private readonly IMapper _mapper;
+        public TeamsController(ITeamService teamService,IMapper mapper)
         {
             _teamService = teamService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -26,7 +29,32 @@ namespace Top5.Api.Controllers
             var teams = await _teamService.GetAllAsync();
             return Ok(teams);
         }
+        /// <summary>
+        /// Get a team by ID
+        /// </summary>
+        [HttpGet("{id:guid}/view")]
+        [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TeamDto>> GetByIdViewAsync(Guid id)
+        {
+            var team = await _teamService.GetByIdViewAsync(id);
+            if (team == null)
+                return NotFound();
+            var dto = _mapper.Map<TeamDto>(team);
 
+            return Ok(dto);
+        }
+        /// <summary>
+        /// Get all teams
+        /// </summary>
+        [HttpGet("view")]
+        [ProducesResponseType(typeof(IEnumerable<TeamDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<TeamDto>>> GetTeamsViewAsync()
+        {
+            var teams = await _teamService.GetTeamsViewAsync();
+            var dto = _mapper.Map<IEnumerable<TeamDto>>(teams);
+            return Ok(dto);
+        }
         /// <summary>
         /// Get a team by ID
         /// </summary>

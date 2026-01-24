@@ -5,13 +5,16 @@ namespace Top5.Business.Services
 {
     public class TeamService : ITeamService
     {
-        private readonly IRepository<Team> _repository;
+        private readonly ITeamRepository _repository;
 
-        public TeamService(IRepository<Team> repository)
+        public TeamService(ITeamRepository repository)
         {
             _repository = repository;
         }
-
+        public async Task<Team?> GetByIdViewAsync(Guid id)
+        {
+            return await _repository.GetByIdViewAsync(id);
+        }
         public async Task<Team?> GetByIdAsync(Guid id)
         {
             return await _repository.GetByIdAsync(id);
@@ -44,6 +47,11 @@ namespace Top5.Business.Services
         public async Task<bool> DeleteAsync(Guid id)
         {
             return await _repository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<Team?>> GetTeamsViewAsync()
+        {
+            return await _repository.GetTeamsViewAsync();
         }
     }
 }

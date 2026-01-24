@@ -48,5 +48,14 @@ namespace Top5.Data.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(mp => mp.matchId == matchId && mp.playerId == playerId);
         }
+
+        public async Task<IEnumerable<MatchPlayers>?> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId)
+        {
+            return await _dbSet.Where(mp => mp.teamId == teamId && mp.playerId ==playerId)
+                .Include(mp => mp.player)
+                .Include(mp => mp.team)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

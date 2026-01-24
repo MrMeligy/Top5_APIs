@@ -5,6 +5,7 @@ namespace Top5.Business.Services
     public interface IMatchPlayersService
     {
         public Task<MatchPlayers?> GetByMatchPlayerViewAsync(Guid id);
+        public Task<IEnumerable<MatchPlayers>?> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId);
         public Task<IEnumerable<MatchPlayers>?> GetByPlayerMatchesAsync(Guid playerId);
         public Task<IEnumerable<MatchPlayers>?> GetByMatchPlayersViewAsync(Guid matchId);
         public Task<MatchPlayers?> GetMatchAndPlayerAsync(Guid matchId, Guid playerId);

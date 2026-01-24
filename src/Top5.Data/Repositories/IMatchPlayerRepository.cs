@@ -11,6 +11,7 @@ namespace Top5.Data.Repositories
         public Task<IEnumerable<MatchPlayers>?> GetByPlayerMatchesAsync(Guid playerId);
         public Task<IEnumerable<MatchPlayers>?> GetByMatchPlayersViewAsync(Guid matchId);
         public Task<MatchPlayers?> GetMatchAndPlayerAsync(Guid matchId,Guid playerId);
+        public Task<IEnumerable<MatchPlayers>?> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId);
 
     }
 }

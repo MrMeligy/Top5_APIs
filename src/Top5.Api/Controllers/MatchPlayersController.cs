@@ -67,6 +67,17 @@ namespace Top5.Api.Controllers
             var matchPlayersDto = _mapper.Map<MatchPlayerDto>(matchPlayers);
             return Ok(matchPlayers);
         }
+        /// <summary>
+        /// Get all match players
+        /// </summary>
+        [HttpGet("{teamId:guid}/{playerId:guid}/playerTeamStatic")]
+        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId)
+        {
+            var matchPlayers = await _matchPlayersService.GetPlayerTeamStatsAsync(teamId, playerId);
+            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
+            return Ok(matchPlayersDto);
+        }
 
         /// <summary>
         /// Get all match players

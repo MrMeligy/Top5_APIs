@@ -46,25 +46,30 @@ namespace Top5.Business.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public Task<MatchPlayers?> GetByMatchPlayerViewAsync(Guid id)
+        public async Task<MatchPlayers?> GetByMatchPlayerViewAsync(Guid id)
         {
-            return _repository.GetByMatchPlayerViewAsync(id);
+            return await _repository.GetByMatchPlayerViewAsync(id);
             
         }
 
-        public Task<IEnumerable<MatchPlayers>?> GetByPlayerMatchesAsync(Guid playerId)
+        public async Task<IEnumerable<MatchPlayers>?> GetByPlayerMatchesAsync(Guid playerId)
         {
-            return _repository.GetByPlayerMatchesAsync(playerId);
+            return await _repository.GetByPlayerMatchesAsync(playerId);
         }
 
-        public Task<IEnumerable<MatchPlayers>?> GetByMatchPlayersViewAsync(Guid matchId)
+        public async Task<IEnumerable<MatchPlayers>?> GetByMatchPlayersViewAsync(Guid matchId)
         {
-            return _repository.GetByMatchPlayersViewAsync(matchId);
+            return await _repository.GetByMatchPlayersViewAsync(matchId);
         }
 
-        public Task<MatchPlayers?> GetMatchAndPlayerAsync(Guid matchId, Guid playerId)
+        public async Task<MatchPlayers?> GetMatchAndPlayerAsync(Guid matchId, Guid playerId)
         {
-            return _repository.GetMatchAndPlayerAsync(matchId, playerId);
+            return await _repository.GetMatchAndPlayerAsync(matchId, playerId);
+        }
+
+        public async Task<IEnumerable<MatchPlayers>?> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId)
+        {
+            return await _repository.GetPlayerTeamStatsAsync(teamId, playerId);
         }
     }
 }
