@@ -5,9 +5,9 @@ namespace Top5.Business.Services
 {
     public class TeamPlayersService : ITeamPlayersService
     {
-        private readonly IRepository<TeamPlayers> _repository;
+        private readonly ITeamPlayersRepository _repository;
 
-        public TeamPlayersService(IRepository<TeamPlayers> repository)
+        public TeamPlayersService(ITeamPlayersRepository repository)
         {
             _repository = repository;
         }
@@ -44,6 +44,11 @@ namespace Top5.Business.Services
         public async Task<bool> DeleteAsync(Guid id)
         {
             return await _repository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<TeamPlayers>> GetTeamPlayersAsync(Guid teamId)
+        {
+            return await _repository.GetTeamPlayersView(teamId);
         }
     }
 }

@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Controllers
@@ -10,10 +12,11 @@ namespace Top5.Api.Controllers
     public class TeamPlayersController : ControllerBase
     {
         private readonly ITeamPlayersService _teamPlayersService;
-
-        public TeamPlayersController(ITeamPlayersService teamPlayersService)
+        private readonly IMapper _mapper;
+        public TeamPlayersController(ITeamPlayersService teamPlayersService,IMapper mapper)
         {
             _teamPlayersService = teamPlayersService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -40,6 +43,21 @@ namespace Top5.Api.Controllers
                 return NotFound();
 
             return Ok(teamPlayers);
+        }
+
+        /// <summary>
+        /// Get a team player by ID
+        /// </summary>
+        [HttpGet("GetTeamPlayers/{teamId:guid}")]
+        [ProducesResponseType(typeof(IEnumerable<TeamPlayerDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<TeamPlayerDto>>> GetTeamPlayers(Guid teamId)
+        {
+            var teamPlayers = await _teamPlayersService.GetTeamPlayersAsync(teamId);
+            if (teamPlayers == null)
+                return NotFound();
+            var dto = _mapper.Map<IEnumerable<TeamPlayerDto>>(teamPlayers);
+            return Ok(dto);
         }
 
         /// <summary>
