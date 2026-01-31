@@ -8,9 +8,6 @@ namespace Top5.Contracts.DTOs
         public string username { get; set; }
         public string? picUrl { get; set; }
         public string phone { get; set; }
-        public string country { get; set; }
-        public string city { get; set; }
-        public string nationality { get; set; }
         public Positions position { get; set; }
         public int level { get; set; }
         public bool gender { get; set; }

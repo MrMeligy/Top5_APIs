@@ -14,6 +14,10 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.homeTeam.name))
                .ForMember(dest => dest.awayTeamName,
                    opt => opt.MapFrom(src => src.awayTeam.name))
+               .ForMember(dest => dest.homePic,
+                   opt => opt.MapFrom(src => src.homeTeam.picUrl))
+               .ForMember(dest => dest.awayPic,
+                   opt => opt.MapFrom(src => src.awayTeam.picUrl))
                .ForMember(dest => dest.id,
                    opt => opt.MapFrom(src => src.id))
                .ForMember(dest => dest.statues,

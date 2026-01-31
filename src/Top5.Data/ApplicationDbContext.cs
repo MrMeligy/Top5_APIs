@@ -11,6 +11,7 @@ namespace Top5.Data
         {
         }
 
+        public DbSet<SysSetting> SysSettings { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Match> Matches { get; set; }
@@ -20,13 +21,15 @@ namespace Top5.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<SysSetting>(entity =>
+            {
+                entity.HasNoKey();
+            });
             // Configure Player
             modelBuilder.Entity<Player>(entity =>
             {
                 entity.HasKey(e => e.id);
                 entity.Property(e => e.username).IsRequired();
-                entity.Property(e => e.email).IsRequired();
                 entity.Property(e => e.password).IsRequired();
             });
 

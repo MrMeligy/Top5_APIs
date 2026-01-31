@@ -28,6 +28,7 @@ namespace Top5.Business.Services
             {
                 matchPlayers.id = Guid.NewGuid();
             }
+
             return await _repository.AddAsync(matchPlayers);
         }
 

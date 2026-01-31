@@ -15,8 +15,6 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.player.username))
                .ForMember(dest => dest.dob,
                    opt => opt.MapFrom(src => src.player.dob))
-               .ForMember(dest => dest.pitch,
-                   opt => opt.MapFrom(src => src.match.pitch))
                .ForMember(dest => dest.picUrl,
                    opt => opt.MapFrom(src => src.player.picUrl))
                .ForMember(dest => dest.kickOff,

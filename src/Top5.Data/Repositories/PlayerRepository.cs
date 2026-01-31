@@ -23,13 +23,9 @@ namespace Top5.Data.Repositories
                     p.id,
                     p.username,
                     p.picUrl,
-                    p.country,
-                    p.city,
-                    p.nationality,
                     p.position,
                     p.dob,
                     p.phone,
-                    p.gender,
                     p.level
                 })
                 .FirstOrDefaultAsync();
@@ -57,13 +53,9 @@ namespace Top5.Data.Repositories
                 id = player.id,
                 username = player.username,
                 picUrl = player.picUrl,
-                country = player.country,
-                city = player.city,
-                nationality = player.nationality,
                 position = player.position,
                 dob = player.dob,
                 phone = player.phone,
-                gender = player.gender,
                 level = player.level,
 
                 goals = stats?.Goals ?? 0,

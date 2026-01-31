@@ -17,11 +17,7 @@ namespace Top5.Domain.Entities
         public int goalsAgainest { get; set; }
         public int wins { get; set; }
         public int loses { get; set; }
-        public string pitch { get; set; }
-        public string country { get; set; }
-        public string city { get; set; }
-        public int cityRank { get; set; }
-        public int countryRank { get; set; }
+        public int Rank { get; set; }
         public int points { get; set; } = 0;
         [JsonIgnore]
         public Player captin { get; set; }

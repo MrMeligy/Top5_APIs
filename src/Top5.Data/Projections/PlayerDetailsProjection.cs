@@ -7,8 +7,6 @@ namespace Top5.Data.Projections
         public Guid id { get; set; }
         public string username { get; set; }
         public string? picUrl { get; set; }
-        public string country { get; set; }
-        public string city { get; set; }
         public string nationality { get; set; }
         public Positions position { get; set; }
         public DateOnly dob { get; set; }

@@ -13,9 +13,6 @@ namespace Top5.Domain.Entities
         public Guid awayTeamId { get; set; }
         public int homeScore { get; set; } = 0;
         public int awayScore { get; set; } = 0;
-        public string city { get; set; }
-        public string country { get; set; }
-        public string pitch { get; set; }
         public DateTime kickOff { get; set; }
         public MatchStatues statues { get; set; } = MatchStatues.Approved;
         public string matchFormat { get; set; }
