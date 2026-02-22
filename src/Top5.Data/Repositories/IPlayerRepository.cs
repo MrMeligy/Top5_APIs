@@ -9,5 +9,8 @@ namespace Top5.Data.Repositories
     public interface IPlayerRepository : IRepository<Player>
     {
         Task<PlayerDetailsProjection> GetPlayerDtoAsync(Guid id);
+        Task<Player?> getByUserName(string userName);
+        Task<bool> isExistAsync(Player player);
+
     }
 }

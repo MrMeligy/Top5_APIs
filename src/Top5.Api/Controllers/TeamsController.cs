@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
@@ -9,6 +10,7 @@ namespace Top5.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Authorize]
     public class TeamsController : ControllerBase
     {
         private readonly ITeamService _teamService;

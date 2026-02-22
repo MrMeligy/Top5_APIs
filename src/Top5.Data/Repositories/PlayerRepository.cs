@@ -13,6 +13,12 @@ namespace Top5.Data.Repositories
         {
         }
 
+        public async Task<Player?> getByUserName(string userName)
+        {
+            var player = await _context.Players.AsNoTracking().FirstOrDefaultAsync(p=>p.username==userName);
+            return player;
+        }
+
         public async Task<PlayerDetailsProjection?> GetPlayerDtoAsync(Guid id)
         {
             var player = await _context.Players
@@ -68,5 +74,14 @@ namespace Top5.Data.Repositories
             return projection;
         }
 
+        public async Task<bool> isExistAsync(Player player)
+        {
+            return await _context.Players
+        .AsNoTracking()
+        .AnyAsync(p =>
+            p.username == player.username ||
+            p.phone == player.phone
+        );
+        }
     }
 }

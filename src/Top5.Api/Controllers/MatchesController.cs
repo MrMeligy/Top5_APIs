@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Top5.Contracts.DTOs;
 using Top5.Business.Services;
 using Top5.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Top5.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class MatchesController : ControllerBase

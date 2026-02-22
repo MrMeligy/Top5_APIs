@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Top5.Api.JWT;
 using Top5.Business.Services;
 using Top5.Data;
 using Top5.Data.Repositories;
@@ -11,7 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
 
+builder.Services.AddSwaggerGenJwtAuth();
 
+builder.Services.AddCustomJwtAuthExtension(builder.Configuration);
 // Add DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -36,6 +39,7 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<ITeamPlayersService, TeamPlayersService>();
 builder.Services.AddScoped<IMatchPlayersService, MatchPlayersService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
@@ -48,7 +52,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
