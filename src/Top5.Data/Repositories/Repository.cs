@@ -60,6 +60,12 @@ namespace Top5.Data.Repositories
             var entity = await _dbSet.FindAsync(id);
             return entity != null;
         }
+
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>()
+                         .FirstOrDefaultAsync(predicate);
+        }
     }
 }
 

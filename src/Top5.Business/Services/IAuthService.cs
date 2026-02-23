@@ -11,7 +11,8 @@ namespace Top5.Business.Services
 {
     public interface IAuthService
     {
-        public Task<string?> login(AuthDto auth);
-        public Task<string?> register(Player player);
+        public Task<AuthResponseDto?> login(AuthDto auth);
+        public Task<AuthResponseDto?> register(Player player);
+        public Task<AuthResponseDto?> refresh(string token);
     }
 }

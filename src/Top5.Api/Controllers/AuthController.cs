@@ -17,15 +17,36 @@ namespace Top5.Api.Controllers
             _authService = authService;
         }
         [HttpPost("login")]
-        public async Task<ActionResult<string>> login([FromBody] AuthDto auth)
+        public async Task<ActionResult<AuthResponseDto>> login([FromBody] AuthDto auth)
         {
-            return await _authService.login(auth) ?? "wrong username or password";
+            var response = await _authService.login(auth);
+            if (response == null)
+            {
+                return StatusCode(401, new { message = "Not Authorized" });
+            }
+            return Ok(response);
         }
         [HttpPost("register")]
-        public async Task<ActionResult<string>> register([FromBody] Player player)
+        public async Task<ActionResult<AuthResponseDto>> register([FromBody] Player player)
         {
-            return await _authService.register(player) ?? "registeration failed";
+            var response = await _authService.register(player);
+            if (response == null)
+            {
+                return StatusCode(401,new {message = "Not Authorized"});
+            }
+            return Ok(response);
         }
+        [HttpPost("refresh")]
+        public async Task<ActionResult<AuthResponseDto>> refresh(string token)
+        {
+            var response = await _authService.refresh(token);
+            if (response == null)
+            {
+                return StatusCode(401, new { message = "Not Authorized" });
+            }
+            return Ok(response);
+        }
+        
 
     }
 }

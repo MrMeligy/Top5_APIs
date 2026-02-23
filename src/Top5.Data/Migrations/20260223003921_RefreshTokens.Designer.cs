@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Top5.Data;
 
@@ -11,9 +12,11 @@ using Top5.Data;
 namespace Top5.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260223003921_RefreshTokens")]
+    partial class RefreshTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,6 +110,35 @@ namespace Top5.Data.Migrations
                     b.ToTable("MatchPlayers");
                 });
 
+            modelBuilder.Entity("Top5.Domain.Entities.RefreshTokens", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("createdAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("expiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("hashedToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("playerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("revokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("playerId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Top5.Domain.Entities.SysSetting", b =>
                 {
                     b.Property<string>("Address")
@@ -190,38 +222,6 @@ namespace Top5.Data.Migrations
                     b.HasIndex("teamId");
 
                     b.ToTable("TeamPlayers");
-                });
-
-            modelBuilder.Entity("Top5.Domain.Entities.Token", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("expiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("hashedToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("isRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("playerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("revokedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("playerId");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Top5.Domain.Models.Player", b =>
@@ -309,6 +309,17 @@ namespace Top5.Data.Migrations
                     b.Navigation("team");
                 });
 
+            modelBuilder.Entity("Top5.Domain.Entities.RefreshTokens", b =>
+                {
+                    b.HasOne("Top5.Domain.Models.Player", "player")
+                        .WithMany()
+                        .HasForeignKey("playerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("player");
+                });
+
             modelBuilder.Entity("Top5.Domain.Entities.Team", b =>
                 {
                     b.HasOne("Top5.Domain.Models.Player", "captin")
@@ -337,17 +348,6 @@ namespace Top5.Data.Migrations
                     b.Navigation("player");
 
                     b.Navigation("team");
-                });
-
-            modelBuilder.Entity("Top5.Domain.Entities.Token", b =>
-                {
-                    b.HasOne("Top5.Domain.Models.Player", "player")
-                        .WithMany()
-                        .HasForeignKey("playerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("player");
                 });
 
             modelBuilder.Entity("Top5.Domain.Entities.Team", b =>
