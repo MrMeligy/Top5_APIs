@@ -22,6 +22,9 @@ namespace Top5.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Token>()
+            .Property(x => x.id)
+            .ValueGeneratedOnAdd();
             modelBuilder.Entity<SysSetting>(entity =>
             {
                 entity.HasNoKey();

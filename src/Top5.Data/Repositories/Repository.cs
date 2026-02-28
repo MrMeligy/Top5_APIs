@@ -66,6 +66,24 @@ namespace Top5.Data.Repositories
             return await _context.Set<T>()
                          .FirstOrDefaultAsync(predicate);
         }
+        public async Task<int> Count(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>()
+                         .CountAsync(predicate);
+        }
+        public async Task<int> DeleteManyAsync(Expression<Func<T, bool>> predicate)
+        {
+            try
+            {
+                return await _context.Set<T>()
+                .Where(predicate)
+                .ExecuteDeleteAsync();
+            }
+            catch (Exception ex) {
+                throw;
+            }
+            
+        }
     }
 }
 
