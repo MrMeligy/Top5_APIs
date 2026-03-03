@@ -34,6 +34,8 @@ namespace Top5.Data
             {
                 entity.HasKey(e => e.id);
                 entity.Property(e => e.username).IsRequired();
+                entity.Property(e => e.phone).IsRequired();
+                entity.HasIndex(e => new {e.username,e.phone }).IsUnique();
                 entity.Property(e => e.password).IsRequired();
             });
 

@@ -19,6 +19,7 @@ namespace Top5.Api.Controllers
             _authService = authService;
         }
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> login([FromBody] AuthDto auth)
         {
             var response = await _authService.login(auth);
@@ -29,6 +30,7 @@ namespace Top5.Api.Controllers
             return Success(response.Value);
         }
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> register([FromBody] Player player)
         {
             var response = await _authService.register(player);
@@ -39,6 +41,7 @@ namespace Top5.Api.Controllers
             return Created(response.Value);
         }
         [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> refresh([FromBody]RefreshTokenDto tokenDto)
         {
             var response = await _authService.refresh(tokenDto.token);
@@ -46,9 +49,8 @@ namespace Top5.Api.Controllers
             {
                 return Failed(response.Error!,401);
             }
-            return Created(response.Value);
+            return Success(response.Value);
         }
         
-
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Top5.Data;
 
@@ -11,9 +12,11 @@ using Top5.Data;
 namespace Top5.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260303003735_addPlayerValidation")]
+    partial class addPlayerValidation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,7 +245,7 @@ namespace Top5.Data.Migrations
 
                     b.Property<string>("phone")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("picUrl")
                         .HasColumnType("nvarchar(max)");
@@ -256,7 +259,7 @@ namespace Top5.Data.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("username", "phone")
+                    b.HasIndex("username")
                         .IsUnique();
 
                     b.ToTable("Players");
