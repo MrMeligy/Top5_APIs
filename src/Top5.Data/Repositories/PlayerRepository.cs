@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Top5.Data.Projections;
+using Top5.Domain.Entities;
 using Top5.Domain.Models;
 
 namespace Top5.Data.Repositories
@@ -54,6 +55,18 @@ namespace Top5.Data.Repositories
                 })
                 .FirstOrDefaultAsync();
 
+            var team = await _context.TeamPlayers
+                .AsNoTracking()
+                .Where(t => t.playerId==id)
+                .FirstOrDefaultAsync();
+            var teamInfo = null as Team;
+            if (team != null)
+            {
+                teamInfo = await _context.Teams
+                    .AsNoTracking()
+                    .Where(t => t.id == team.teamId)
+                    .FirstOrDefaultAsync();
+            }
             var projection = new PlayerDetailsProjection
             {
                 id = player.id,
@@ -68,7 +81,9 @@ namespace Top5.Data.Repositories
                 assists = stats?.Assists ?? 0,
                 saves = stats?.Saves ?? 0,
                 matchCount = stats?.Matches ?? 0,
-                rate = stats?.rate ?? 0.0
+                rate = stats?.rate ?? 0.0,
+
+                team = teamInfo
             };
 
             return projection;
@@ -82,6 +97,13 @@ namespace Top5.Data.Repositories
             p.username == player.username ||
             p.phone == player.phone
         );
+        }
+
+        public async Task<IEnumerable<Player>> SearchPlayersAsync(string userName)
+        {
+            return await _context.Players
+        .AsNoTracking()
+            .Where(p => EF.Functions.Like(p.username, $"%{userName}%")).ToListAsync();
         }
     }
 }

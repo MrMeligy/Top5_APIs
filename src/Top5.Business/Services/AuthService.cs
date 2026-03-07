@@ -29,105 +29,126 @@ namespace Top5.Business.Services
             _tokens = tokens;
         }
 
-        
+
 
         //Login
         public async Task<Result<AuthResponseDto?>> login(AuthDto auth)
         {
-            var user = await _playerRepo.getByUserName(auth.username);
-            if (user == null)
+            try
             {
-                return Result<AuthResponseDto?>.Failure("UserName Not Exist");
-            }
-            if (!Verify(auth.password, user.password))
-            {
-                return Result<AuthResponseDto?>.Failure("Incorrect Password");
-            }
+                var user = await _playerRepo.getByUserName(auth.username);
+                if (user == null)
+                {
+                    return Result<AuthResponseDto?>.Failure("UserName Not Exist");
+                }
+                if (!Verify(auth.password, user.password))
+                {
+                    return Result<AuthResponseDto?>.Failure("Incorrect Password");
+                }
             ;
-            var refreshToken = GenerateRefreshToken();
-            await _tokens.AddAsync(new Token()
-            {
-                playerId = user.id,
-                createdAt = DateTime.UtcNow,
-                expiresAt = DateTime.UtcNow.AddDays(7),
-                hashedToken = HashToken(refreshToken),
-            });
+                var refreshToken = GenerateRefreshToken();
+                await _tokens.AddAsync(new Token()
+                {
+                    playerId = user.id,
+                    createdAt = DateTime.UtcNow,
+                    expiresAt = DateTime.UtcNow.AddDays(7),
+                    hashedToken = HashToken(refreshToken),
+                });
 
-            return Result<AuthResponseDto?>.Success(
-                    new AuthResponseDto()
-                    {
-                        accessToken = GenerateAccessToken(user),
-                        refreshToken = refreshToken
-                    }
-            );
+                return Result<AuthResponseDto?>.Success(
+                        new AuthResponseDto()
+                        {
+                            accessToken = GenerateAccessToken(user),
+                            refreshToken = refreshToken
+                        }
+                );
+            }
+            catch (Exception ex)
+            {
+                return Result<AuthResponseDto?>.Failure(ex.Message);
+            }
         }
 
         // Registration
         public async Task<Result<AuthResponseDto?>> register(Player player)
         {
-            if (await _playerRepo.isExistAsync(player)) {
-                return Result<AuthResponseDto?>.Failure("Already Registerd"); ;
-            }
-            player.password = BCrypt.Net.BCrypt.HashPassword(player.password);
-            await _playerRepo.AddAsync(player);
-            var refreshToken = GenerateRefreshToken();
-            await _tokens.AddAsync(new Token()
+            try
             {
-                playerId = player.id,
-                createdAt = DateTime.UtcNow,
-                expiresAt = DateTime.UtcNow.AddDays(7),
-                hashedToken = HashToken(refreshToken),
-
-            });
-            return Result<AuthResponseDto?>.Success(
-                new AuthResponseDto()
+                if (await _playerRepo.isExistAsync(player))
                 {
-                    accessToken = GenerateAccessToken(player),
-                    refreshToken = refreshToken
+                    return Result<AuthResponseDto?>.Failure("Already Registerd"); ;
                 }
-            );
+                player.password = BCrypt.Net.BCrypt.HashPassword(player.password);
+                await _playerRepo.AddAsync(player);
+                var refreshToken = GenerateRefreshToken();
+                await _tokens.AddAsync(new Token()
+                {
+                    playerId = player.id,
+                    createdAt = DateTime.UtcNow,
+                    expiresAt = DateTime.UtcNow.AddDays(7),
+                    hashedToken = HashToken(refreshToken),
+
+                });
+                return Result<AuthResponseDto?>.Success(
+                    new AuthResponseDto()
+                    {
+                        accessToken = GenerateAccessToken(player),
+                        refreshToken = refreshToken
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return Result<AuthResponseDto?>.Failure(ex.Message);
+            }
 
         }
         //Refresh Tokens
         public async Task<Result<AuthResponseDto?>> refresh(string token)
         {
-            var hashed = HashToken(token);
-            var refreshToken = await _tokens.FirstOrDefaultAsync(t => t.hashedToken == hashed);
-            if (refreshToken == null || refreshToken.expiresAt < DateTime.UtcNow || refreshToken.isRevoked)
+            try
             {
-                return Result<AuthResponseDto?>.Failure("this token is Revoked Or Expired");
-            }
-            var player = await _playerRepo.GetByIdAsync(refreshToken.playerId);
-            if (player == null)
-            {
-                return Result<AuthResponseDto?>.Failure("This Player Not Exist or Blocked");
-            }
-            refreshToken.isRevoked = true;
-            refreshToken.revokedAt = DateTime.UtcNow;
-            await _tokens.UpdateAsync(refreshToken);
-            var newToken = GenerateRefreshToken();
-            var tokensCount = await _tokens.Count(t => t.playerId == player.id && t.isRevoked == true);
-            await _tokens.AddAsync(new Token()
-            {
-                playerId = player.id,
-                createdAt = DateTime.UtcNow,
-                hashedToken = HashToken(newToken),
-                expiresAt = DateTime.UtcNow.AddDays(7),
-            });
-            if (tokensCount > 5)
-            {
-                await _tokens.DeleteManyAsync(t => t.playerId == player.id && t.isRevoked == true);
-            }
-            return Result<AuthResponseDto?>.Success(
-                new AuthResponseDto()
+                var hashed = HashToken(token);
+                var refreshToken = await _tokens.FirstOrDefaultAsync(t => t.hashedToken == hashed);
+                if (refreshToken == null || refreshToken.expiresAt < DateTime.UtcNow || refreshToken.isRevoked)
                 {
-                    accessToken = GenerateAccessToken(player),
-                    refreshToken = newToken
+                    return Result<AuthResponseDto?>.Failure("this token is Revoked Or Expired");
                 }
-             );
+                var player = await _playerRepo.GetByIdAsync(refreshToken.playerId);
+                if (player == null)
+                {
+                    return Result<AuthResponseDto?>.Failure("This Player Not Exist or Blocked");
+                }
+                refreshToken.isRevoked = true;
+                refreshToken.revokedAt = DateTime.UtcNow;
+                await _tokens.UpdateAsync(refreshToken);
+                var newToken = GenerateRefreshToken();
+                var tokensCount = await _tokens.Count(t => t.playerId == player.id && t.isRevoked == true);
+                await _tokens.AddAsync(new Token()
+                {
+                    playerId = player.id,
+                    createdAt = DateTime.UtcNow,
+                    hashedToken = HashToken(newToken),
+                    expiresAt = DateTime.UtcNow.AddDays(7),
+                });
+                if (tokensCount > 5)
+                {
+                    await _tokens.DeleteManyAsync(t => t.playerId == player.id && t.isRevoked == true);
+                }
+                return Result<AuthResponseDto?>.Success(
+                    new AuthResponseDto()
+                    {
+                        accessToken = GenerateAccessToken(player),
+                        refreshToken = newToken
+                    }
+                 );
+            }
+            catch (Exception ex)
+            {
+                return Result<AuthResponseDto?>.Failure(ex.Message);
 
+            }
         }
-
 
         private string GenerateAccessToken(Player user)
         {

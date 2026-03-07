@@ -1,4 +1,5 @@
-﻿using Top5.Domain.Enums;
+﻿using Top5.Domain.Entities;
+using Top5.Domain.Enums;
 
 namespace Top5.Contracts.DTOs
 {
@@ -17,5 +18,6 @@ namespace Top5.Contracts.DTOs
         public int saves { get; set; }
         public double rate { get; set; }
         public DateOnly dob { get; set; }
+        public Team? team { get; set; }
     }
 }

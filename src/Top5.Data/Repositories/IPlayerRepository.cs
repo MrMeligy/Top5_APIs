@@ -11,6 +11,7 @@ namespace Top5.Data.Repositories
         Task<PlayerDetailsProjection> GetPlayerDtoAsync(Guid id);
         Task<Player?> getByUserName(string userName);
         Task<bool> isExistAsync(Player player);
+        Task<IEnumerable<Player>> SearchPlayersAsync(string userName);
 
     }
 }

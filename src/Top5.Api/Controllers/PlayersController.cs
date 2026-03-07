@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Top5.Business.Services;
@@ -10,7 +11,7 @@ namespace Top5.Api.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Authorize]
-    public class PlayersController : ControllerBase
+    public class PlayersController : BaseController
     {
         private readonly IPlayerService _playerService;
 
@@ -19,83 +20,43 @@ namespace Top5.Api.Controllers
             _playerService = playerService;
         }
 
-        /// <summary>
-        /// Get all players
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Player>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Player>>> GetAllPlayers()
-        {
-            var players = await _playerService.GetAllAsync();
-            return Ok(players);
-        }
-        /// <summary>
-        /// Get PlayerDto
-        /// </summary>
-        [HttpGet("{id:guid}/view")]
-        [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<PlayerDto>> GetPlayerDto(Guid id)
-        {
-            var player = await _playerService.GetPlayerDtoById(id);
-            return Ok(player);
-        }
-
-        /// <summary>
-        /// Get a player by ID
-        /// </summary>
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(Player), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Player>> GetPlayerById(Guid id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerDto(Guid id)
         {
-            var player = await _playerService.GetByIdAsync(id);
-            if (player == null)
-                return NotFound();
+            var response = await _playerService.GetPlayerDtoById(id);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!,400);
 
-            return Ok(player);
         }
-
-        /// <summary>
-        /// Create a new player
-        /// </summary>
-        [HttpPost]
-        [ProducesResponseType(typeof(Player), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Player>> CreatePlayer([FromBody] Player player)
+        [HttpGet()]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchPlayers(string userName)
         {
-            var createdPlayer = await _playerService.CreateAsync(player);
-            return CreatedAtAction(nameof(GetPlayerById), new { id = createdPlayer.id }, createdPlayer);
-        }
+            var response = await _playerService.SearchPlayersAsync(userName);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!,400);
 
-        /// <summary>
-        /// Update an existing player
-        /// </summary>
+        }
+        
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(Player), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Player>> UpdatePlayer(Guid id, [FromBody] Player player)
+        public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] Player player)
         {
-            var updatedPlayer = await _playerService.UpdateAsync(id, player);
-            if (updatedPlayer == null)
-                return NotFound();
-
-            return Ok(updatedPlayer);
+            var response = await _playerService.UpdateAsync(id, player);
+            
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Delete a player
-        /// </summary>
+
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePlayer(Guid id)
         {
-            var deleted = await _playerService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
+            var response = await _playerService.DeleteAsync(id);
+            
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
     }
 }
