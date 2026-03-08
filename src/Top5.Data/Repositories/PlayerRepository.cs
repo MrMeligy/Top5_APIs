@@ -14,6 +14,17 @@ namespace Top5.Data.Repositories
         {
         }
 
+        public async Task<Guid?> isPhoneExist(string phone)
+        {
+            var player = await _context.Players.AsNoTracking().FirstOrDefaultAsync(p => p.phone == phone);
+            return player?.id;
+        }
+        public async Task<Guid?> isUserNameExist(string username)
+        {
+            var player = await _context.Players.AsNoTracking().FirstOrDefaultAsync(p => p.username == username);
+            return player?.id;
+        }
+
         public async Task<Player?> getByUserName(string userName)
         {
             var player = await _context.Players.AsNoTracking().FirstOrDefaultAsync(p=>p.username==userName);

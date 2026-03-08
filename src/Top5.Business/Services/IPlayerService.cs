@@ -13,7 +13,7 @@ namespace Top5.Business.Services
         //Task<Result<IEnumerable<Player>>> GetTopPlayersAsync();
 
         //Task<Result<Player>> CreateAsync(Player player);
-        Task<Result<Player>> UpdateAsync(Guid id, Player player);
+        Task<Result<Player>> UpdateAsync(Guid id, UpdatePlayerDto player);
         Task<Result<bool>> DeleteAsync(Guid id);
     }
 }

@@ -15,29 +15,36 @@ namespace Top5.Business.Services
         }
         public async Task<Result<PlayerDto?>> GetPlayerDtoById(Guid id)
         {
-            var p = await _repository.GetPlayerDtoAsync(id);
-            if (p == null)
-                return Result<PlayerDto?>.Failure("Player not found");
-            var player = new PlayerDto
+            try
             {
-                id = p.id,
-                username = p.username,
-                picUrl = p.picUrl,
-                position = p.position,
-                dob = p.dob,
-                phone = p.phone,
-                gender = p.gender,
-                level = p.level,
-                goals = p.goals,
-                assists = p.assists,
-                saves = p.saves,
-                matchCount = p.matchCount,
-                rate = p.rate,
-                team = p.team
-            };
-            return Result<PlayerDto?>.Success(player);
+                var p = await _repository.GetPlayerDtoAsync(id);
+                if (p == null)
+                    return Result<PlayerDto?>.Failure("Player not found");
+                var player = new PlayerDto
+                {
+                    id = p.id,
+                    username = p.username,
+                    picUrl = p.picUrl,
+                    position = p.position,
+                    dob = p.dob,
+                    phone = p.phone,
+                    gender = p.gender,
+                    level = p.level,
+                    goals = p.goals,
+                    assists = p.assists,
+                    saves = p.saves,
+                    matchCount = p.matchCount,
+                    rate = p.rate,
+                    team = p.team
+                };
+                return Result<PlayerDto?>.Success(player);
+            }
+            catch (Exception ex)
+            {
+                return Result<PlayerDto?>.Failure(ex.Message);
+            }
 
-        }
+            }
         public async Task<Result<Player?>> GetByIdAsync(Guid id)
         {
             var p = await _repository.GetByIdAsync(id);
@@ -62,16 +69,38 @@ namespace Top5.Business.Services
         //    return await _repository.AddAsync(player);
         //}
 
-        public async Task<Result<Player>> UpdateAsync(Guid id, Player player)
+        public async Task<Result<Player>> UpdateAsync(Guid id, UpdatePlayerDto player)
         {
             var existingPlayer = await _repository.GetByIdAsync(id);
             if (existingPlayer == null)
                 return Result<Player>.Failure("Player Not Exist");
 
-            player.id = id;
+            var phoneExists = await _repository.isPhoneExist(player.phone);
+            var userNameExists = await _repository.isUserNameExist(player.username);
+            
+            if (phoneExists != null && phoneExists != id)
+            {
+                return Result<Player>.Failure("this phone already registerd with another player");
+            }
+            if (userNameExists != null && userNameExists != id)
+            {
+                return Result<Player>.Failure("this username unavailble");
+            }
+            existingPlayer.username = player.username;
+            existingPlayer.phone = player.phone;
+            if (!string.IsNullOrWhiteSpace(player.password))
+            {
+                existingPlayer.password = BCrypt.Net.BCrypt.HashPassword(player.password);
+            }
+            existingPlayer.position = player.position;
+            existingPlayer.level = player.level;
+            if (!string.IsNullOrWhiteSpace(player.picUrl))
+            {
+                existingPlayer.picUrl = player.picUrl;
+            }
             try
             {
-                var p = await _repository.UpdateAsync(player);
+                var p = await _repository.UpdateAsync(existingPlayer);
                 return Result<Player>.Success(p);
             }
             catch (Exception ex)

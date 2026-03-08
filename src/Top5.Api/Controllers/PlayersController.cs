@@ -1,8 +1,12 @@
+using AutoMapper;
 using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Top5.Api.Mapping;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
+using Top5.Domain.Entities;
 using Top5.Domain.Models;
 
 namespace Top5.Api.Controllers
@@ -14,10 +18,11 @@ namespace Top5.Api.Controllers
     public class PlayersController : BaseController
     {
         private readonly IPlayerService _playerService;
-
-        public PlayersController(IPlayerService playerService)
+        private readonly IMapper _mapper;
+        public PlayersController(IPlayerService playerService,IMapper mapper)
         {
             _playerService = playerService;
+            _mapper = mapper;
         }
 
         [HttpGet("{id:guid}")]
@@ -28,24 +33,35 @@ namespace Top5.Api.Controllers
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!,400);
 
         }
-        [HttpGet()]
+        [HttpGet("Search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchPlayers(string userName)
         {
             var response = await _playerService.SearchPlayersAsync(userName);
-            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!,400);
+            if (!response.IsSuccess)
+            {
+                return Failed(response.Error!,400);
+            }
+            var resDto = _mapper.Map<IEnumerable<PlayerDto>>(response.Value);
+            return Success(resDto);
 
         }
         
-        [HttpPut("{id:guid}")]
+        [HttpPut()]
         [ProducesResponseType(typeof(Player), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] Player player)
+        public async Task<IActionResult> UpdatePlayer([FromBody] UpdatePlayerDto dto)
         {
-            var response = await _playerService.UpdateAsync(id, player);
-            
-            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = Guid.Parse(userId!);
+            var response = await _playerService.UpdateAsync(id, dto);
+            if (!response.IsSuccess)
+            {
+                return Failed(response.Error!, 400);
+            }
+            var resDto = _mapper.Map<PlayerDto>(response.Value);
+            return Success(resDto);
         }
 
 

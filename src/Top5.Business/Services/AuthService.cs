@@ -162,7 +162,7 @@ namespace Top5.Business.Services
             var token = new JwtSecurityToken(
                 claims: claims,
                 issuer: _config["JWT:Issuer"],
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: credentials
                 );
             var _token = new JwtSecurityTokenHandler().WriteToken(token);
