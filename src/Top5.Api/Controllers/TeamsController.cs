@@ -1,6 +1,8 @@
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
@@ -11,7 +13,7 @@ namespace Top5.Api.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Authorize]
-    public class TeamsController : ControllerBase
+    public class TeamsController : BaseController
     {
         private readonly ITeamService _teamService;
         private readonly IMapper _mapper;
@@ -22,84 +24,86 @@ namespace Top5.Api.Controllers
         }
 
         /// <summary>
-        /// Get all teams
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Team>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Team>>> GetAllTeams()
-        {
-            var teams = await _teamService.GetAllAsync();
-            return Ok(teams);
-        }
-        /// <summary>
-        /// Get a team by ID
-        /// </summary>
-        [HttpGet("{id:guid}/view")]
-        [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TeamDto>> GetByIdViewAsync(Guid id)
-        {
-            var team = await _teamService.GetByIdViewAsync(id);
-            if (team == null)
-                return NotFound();
-            var dto = _mapper.Map<TeamDto>(team);
-
-            return Ok(dto);
-        }
-        /// <summary>
-        /// Get all teams
-        /// </summary>
-        [HttpGet("view")]
-        [ProducesResponseType(typeof(IEnumerable<TeamDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<TeamDto>>> GetTeamsViewAsync()
-        {
-            var teams = await _teamService.GetTeamsViewAsync();
-            var dto = _mapper.Map<IEnumerable<TeamDto>>(teams);
-            return Ok(dto);
-        }
-        /// <summary>
         /// Get a team by ID
         /// </summary>
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(Team), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Team>> GetTeamById(Guid id)
+        public async Task<IActionResult> GetByIdViewAsync(Guid id)
         {
-            var team = await _teamService.GetByIdAsync(id);
-            if (team == null)
-                return NotFound();
-
-            return Ok(team);
+            var response = await _teamService.GetByIdViewAsync(id);
+            if (!response.IsSuccess)
+                return Failed(response.Error!,404);
+            var dto = _mapper.Map<TeamDto>(response.Value);
+            return Success(dto);
+        }
+        /// <summary>
+        /// Get all teams
+        /// </summary>
+        [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchTeamsAsync(string name, int pageNumber,int pageSize)
+        {
+            var paginationDto = new PaginationDto { pageNumber = pageNumber, pageSize = pageSize };
+            var response = await _teamService.SearchTeam(paginationDto,name);
+            if (!response.IsSuccess)
+                return Failed(response.Error!,404);
+            var dto = _mapper.Map<IEnumerable<TeamDto>>(response.Value);
+            return Success(dto); 
+        }
+        [HttpGet("/standings")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetStandings(int pageNumber,int pageSize)
+        {
+            var paginationDto = new PaginationDto { pageNumber = pageNumber, pageSize = pageSize };
+            var response = await _teamService.GetLeaderBoard(paginationDto);
+            if (!response.IsSuccess)
+                return Failed(response.Error!,404);
+            var dto = _mapper.Map<IEnumerable<TeamDto>>(response.Value);
+            return Success(dto); 
         }
 
         /// <summary>
         /// Create a new team
         /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(Team), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Team>> CreateTeam([FromBody] Team team)
+        public async Task<IActionResult> CreateTeam([FromBody] CreateTeamDto team)
         {
-            var createdTeam = await _teamService.CreateAsync(team);
-            return CreatedAtAction(nameof(GetTeamById), new { id = createdTeam.id }, createdTeam);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = Guid.Parse(userId!);
+            var response = await _teamService.CreateAsync(team,id);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
         /// <summary>
         /// Update an existing team
         /// </summary>
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(Team), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Team>> UpdateTeam(Guid id, [FromBody] Team team)
+        public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] UpdateTeamInfoDto team)
         {
-            var updatedTeam = await _teamService.UpdateAsync(id, team);
-            if (updatedTeam == null)
-                return NotFound();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var capId = Guid.Parse(userId!);
+            var response = await _teamService.UpdateInfoAsync(id,capId,team);
 
-            return Ok(updatedTeam);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
+        //for updating stats only by admin
+        //[HttpPut("/stats")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public async Task<IActionResult> UpdateTeamStats(Guid id, [FromBody] UpdateTeamStatsDto team)
+        //{
+        //    var response = await _teamService.UpdateStatsAsync(id, team);
+
+        //    return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        //}
         /// <summary>
         /// Delete a team
         /// </summary>
@@ -108,11 +112,11 @@ namespace Top5.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteTeam(Guid id)
         {
-            var deleted = await _teamService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var capId = Guid.Parse(userId!);
+            var response = await _teamService.DeleteAsync(id,capId);
 
-            return NoContent();
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
     }
 }

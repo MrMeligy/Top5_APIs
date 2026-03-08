@@ -1,16 +1,20 @@
+using Top5.Business.Result;
+using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
 
 namespace Top5.Business.Services
 {
     public interface ITeamService
     {
-        Task<Team?> GetByIdViewAsync(Guid id);
-        public Task<IEnumerable<Team?>> GetTeamsViewAsync();
-        Task<Team?> GetByIdAsync(Guid id);
-        Task<IEnumerable<Team>> GetAllAsync();
-        Task<Team> CreateAsync(Team team);
-        Task<Team?> UpdateAsync(Guid id, Team team);
-        Task<bool> DeleteAsync(Guid id);
+        Task<Result<Team?>> GetByIdViewAsync(Guid id);
+        //public Task<Result<IEnumerable<Team?>>> GetTeamsViewAsync();
+        Task<Result<IEnumerable<Team>>> GetLeaderBoard(PaginationDto dto);
+        Task<Result<IEnumerable<Team>>> SearchTeam(PaginationDto dto,string name);
+        Task<Result<Team>> CreateAsync(CreateTeamDto team,Guid capId);
+        Task<Result<Team?>> UpdateInfoAsync(Guid id,Guid capId, UpdateTeamInfoDto team);
+        Task<Result<Team?>> UpdateStatsAsync(Guid id,UpdateTeamStatsDto team);
+        Task<Result<bool>> DeleteAsync(Guid id,Guid capId);
+
     }
 }
 

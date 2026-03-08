@@ -88,10 +88,6 @@ namespace Top5.Business.Services
             }
             existingPlayer.username = player.username;
             existingPlayer.phone = player.phone;
-            if (!string.IsNullOrWhiteSpace(player.password))
-            {
-                existingPlayer.password = BCrypt.Net.BCrypt.HashPassword(player.password);
-            }
             existingPlayer.position = player.position;
             existingPlayer.level = player.level;
             if (!string.IsNullOrWhiteSpace(player.picUrl))

@@ -27,5 +27,30 @@ namespace Top5.Data.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Team>> LeaderBoard(int pageNumber,int pageSize)
+        {
+            return await _dbSet
+                .Where(t => t.matchCount > 0)
+                .Include(c => c.captin)
+                .OrderByDescending(t => t.points)
+                .ThenByDescending(t => t.goals - t.goalsAgainest)
+                .ThenByDescending(t => t.goals)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Team>> SearchTeam(int pageNumber, int pageSize,string name)
+        {
+            return await _dbSet
+                .Where(t => EF.Functions.Like(t.name, $"%{name}%"))
+                .Include(c => c.captin)
+                .AsNoTracking()
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }
