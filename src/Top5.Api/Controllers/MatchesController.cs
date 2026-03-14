@@ -1,9 +1,12 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Top5.Contracts.DTOs;
-using Top5.Business.Services;
-using Top5.Domain.Entities;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Top5.Business.Result;
+using Top5.Business.Services;
+using Top5.Contracts.DTOs;
+using Top5.Domain.Entities;
+using Top5.Domain.Enums;
 
 namespace Top5.Api.Controllers
 {
@@ -11,11 +14,11 @@ namespace Top5.Api.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class MatchesController : ControllerBase
+    public class MatchesController : BaseController
     {
         private readonly IMatchService _matchService;
         private readonly IMapper _mapper;
-        public MatchesController(IMatchService matchService,IMapper mapper)
+        public MatchesController(IMatchService matchService, IMapper mapper)
         {
             _matchService = matchService;
             _mapper = mapper;
@@ -24,98 +27,110 @@ namespace Top5.Api.Controllers
         /// <summary>
         /// Get all matches
         /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Match>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Match>>> GetAllMatches()
+        [HttpGet("AllMatches/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllMatches(Guid teamId, int pageSize,int pageNumber)
         {
-            var matches = await _matchService.GetAllAsync();
-            return Ok(matches);
+            var response = await _matchService.GetAllTeamMatches(teamId,new PaginationDto { pageNumber = pageNumber,pageSize=pageSize});
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
         /// <summary>
         /// Get all matche view in application
         /// </summary>
-        [HttpGet("view")]
-        [ProducesResponseType(typeof(IEnumerable<MatchDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MatchDto>>> GetAllMatchesView()
+        [HttpGet("History/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMatchesHistory(Guid teamId, int pageSize, int pageNumber)
         {
-            var matches = await _matchService.GetAllWithTeamsAsync();
-            var dto = _mapper.Map<IEnumerable<MatchDto>>(matches);
-            return Ok(dto);
+            var response = await _matchService.GetMatchesHistory(teamId, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
         /// <summary>
         /// Get a match by ID
         /// </summary>
+        [HttpGet("Schedule/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMatchById(Guid teamId, int pageSize, int pageNumber)
+        {
+            var response = await _matchService.GetTeamSchedule(teamId, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+
+        /// <summary>
+        /// Get a match by ID
+        /// </summary>
+        [HttpGet("Rejected/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRejectedMatches(Guid teamId, MatchStatues status ,int pageSize, int pageNumber)
+        {
+            var response = await _matchService.GetMatchesByStatus(teamId,status, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+        [HttpGet("Date/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMatchesByDate(Guid teamId,DateOnly date)
+        {
+            var response = await _matchService.GetMatchesByDate(teamId,date);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+        [HttpGet("PendingSent/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPendingMatchesSentAsync(Guid teamId, int pageSize, int pageNumber)
+        {
+            var response = await _matchService.GetPendingMatchesSent(teamId, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+        [HttpGet("PendingRequest/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPendingMatchesRequestAsync(Guid teamId, int pageSize, int pageNumber)
+        {
+            var response = await _matchService.GetPendingMatchesRequests(teamId, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(Match), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Match>> GetMatchById(Guid id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMatchById(Guid id)
         {
-            var match = await _matchService.GetByIdAsync(id);
-            if (match == null)
-                return NotFound();
-
-            return Ok(match);
-        }
-
-        /// <summary>
-        /// Get a match by ID
-        /// </summary>
-        [HttpGet("{id:guid}/view")]
-        [ProducesResponseType(typeof(Match), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MatchDto>> GetMatchWithTeamsById(Guid id)
-        {
-            var match = await _matchService.GetByIdWithTeamsAsync(id);
-            if (match == null)
-                return NotFound();
-
-            var dto = _mapper.Map<MatchDto>(match);
-            return Ok(dto);
+            var response = await _matchService.GetMatchById(id);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
         /// <summary>
         /// Create a new match
         /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(Match), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Match>> CreateMatch([FromBody] Match match)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateMatch([FromBody] Match match)
         {
-            var createdMatch = await _matchService.CreateAsync(match);
-            return CreatedAtAction(nameof(GetMatchById), new { id = createdMatch.id }, createdMatch);
+            var response = await _matchService.CreateAsync(match);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
         /// <summary>
         /// Update an existing match
         /// </summary>
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(Match), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Match>> UpdateMatch(Guid id, [FromBody] Match match)
+        public async Task<IActionResult> UpdateMatchScoreAsync(Guid id, Guid captinId, int score)
         {
-            var updatedMatch = await _matchService.UpdateAsync(id, match);
-            if (updatedMatch == null)
-                return NotFound();
+            var response = await _matchService.UpdateMatchScore(id, captinId,score);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
 
-            return Ok(updatedMatch);
         }
-
-        /// <summary>
-        /// Delete a match
-        /// </summary>
-        [HttpDelete("{id:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpPut("Status/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteMatch(Guid id)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ChangeStatusAsync(Guid id, MatchStatues statues)
         {
-            var deleted = await _matchService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+            var response = await _matchService.ChangeStatus(id, statues);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
 
-            return NoContent();
         }
+
     }
 }
 

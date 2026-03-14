@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Mapping
@@ -24,6 +25,7 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.statues))
                .ForMember(dest => dest.kickOff,
                    opt => opt.MapFrom(src => src.kickOff));
+            CreateMap(typeof(PaginationResponse<>), typeof(PaginationResponse<>));
         }
     }
 }

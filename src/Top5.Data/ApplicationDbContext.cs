@@ -65,9 +65,6 @@ namespace Top5.Data
                 entity.Property(x => x.statues)
               .HasConversion<int>();
 
-                // Default في قاعدة البيانات
-                entity.Property(x => x.statues)
-                      .HasDefaultValue(MatchStatues.Approved);
             });
 
             // Configure TeamPlayers

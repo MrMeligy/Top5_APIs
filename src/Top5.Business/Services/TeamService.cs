@@ -113,34 +113,47 @@ namespace Top5.Business.Services
             }
         }
 
-        public async Task<Result<Team?>> UpdateStatsAsync(Guid id ,UpdateTeamStatsDto team)
+        public async Task<Result<IEnumerable<Team>>> UpdateStatsAsync(UpdateTeamStatsDto dto)
         {
             try
             {
-                var existingTeam = await _repository.GetByIdAsync(id);
-                if (existingTeam == null)
-                    return Result<Team?>.Failure("Team not found");
-                existingTeam.matchCount++;
-                existingTeam.goals += team.goals;
-                existingTeam.goalsAgainest += team.goalsAgainest;
-                if(team.goals > team.goalsAgainest)
+                var homeTeam = await _repository.GetByIdAsync(dto.homeId);
+                var awayTeam = await _repository.GetByIdAsync(dto.awayId);
+                if (homeTeam == null || awayTeam == null)
+                    return Result<IEnumerable<Team>>.Failure("Team not found");
+                homeTeam.matchCount++;
+                awayTeam.matchCount++;
+                
+                homeTeam.goals += dto.homeScore;
+                homeTeam.goalsAgainest += dto.awayScore;
+
+                awayTeam.goals += dto.awayScore;
+                awayTeam.goalsAgainest += dto.homeScore;
+
+                if (dto.homeScore > dto.awayScore)
                 {
-                    existingTeam.wins++;
-                    existingTeam.points += 3;
-                }else if(team.goals == team.goalsAgainest)
+                    homeTeam.wins++;
+                    homeTeam.points += 3;
+                    awayTeam.loses++;
+                }
+                else if(dto.homeScore == dto.awayScore)
                 {
-                    existingTeam.points += 1;
+                    homeTeam.points += 1;
+                    awayTeam.points += 1;
                 }else
                 {
-                    existingTeam.loses ++;
+                    homeTeam.loses ++;
+                    awayTeam.wins++;
+                    awayTeam.points += 3;
                 }
-                await _repository.UpdateAsync(existingTeam);
+                await _repository.UpdateAsync(homeTeam);
+                await _repository.UpdateAsync(awayTeam);
                 await RecalculateRanksAsync();
-                return Result<Team?>.Success(existingTeam);
+                return Result<IEnumerable<Team>>.Success([homeTeam,awayTeam]);
             }
             catch (Exception ex)
             {
-                return Result<Team?>.Failure($"An error occurred while updating the team stats: {ex.Message}");
+                return Result<IEnumerable<Team>>.Failure($"An error occurred while updating the team stats: {ex.Message}");
             }
         }
         private async Task RecalculateRanksAsync()

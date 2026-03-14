@@ -1,58 +1,201 @@
+using AutoMapper;
+using Top5.Business.Result;
+using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Data.Repositories;
 using Top5.Domain.Entities;
+using Top5.Domain.Enums;
 
 namespace Top5.Business.Services
 {
     public class MatchService : IMatchService
     {
         private readonly IMatchRepository _repository;
+        private readonly ITeamService _tmsrvc;
+        private readonly IMapper _mapper;
 
-        public MatchService(IMatchRepository repository)
+        public MatchService(IMatchRepository repository, ITeamService tmsrvc, IMapper mapper)
         {
             _repository = repository;
+            _tmsrvc = tmsrvc;
+            _mapper = mapper;
         }
 
-        public async Task<Match?> GetByIdAsync(Guid id)
+        public async Task<Result<bool>> ChangeStatus(Guid matchId, MatchStatues newStatus)
         {
-            return await _repository.GetByIdAsync(id);
-        }
-
-        public async Task<IEnumerable<Match>> GetAllAsync()
-        {
-            return await _repository.GetAllAsync();
-        }
-
-        public async Task<Match> CreateAsync(Match match)
-        {
-            if (match.id == Guid.Empty)
+            try
             {
-                match.id = Guid.NewGuid();
+               var response = await _repository.ChangeStatus(matchId, newStatus);
+                return Result<bool>.Success(response);
             }
-            return await _repository.AddAsync(match);
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(ex.Message);
+            }
         }
 
-        public async Task<Match?> UpdateAsync(Guid id, Match match)
+        public async Task<Result<MatchDto>> CreateAsync(Match match)
         {
-            var existingMatch = await _repository.GetByIdAsync(id);
-            if (existingMatch == null)
-                return null;
-
-            match.id = id;
-            return await _repository.UpdateAsync(match);
+            try
+            {
+                bool hasAnotherMatches = await _repository.HasAnotherMatch(match.homeTeamId,match.awayTeamId,match.kickOff);
+                if (hasAnotherMatches)
+                {
+                    return Result<MatchDto>.Failure("Team Has another match in this time");
+                }
+                var response = await _repository.AddAsync(match);
+                var mapped = _mapper.Map<MatchDto>(response);
+                return Result<MatchDto>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<MatchDto>.Failure(ex.Message);
+            }
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<Result<PaginationResponse<MatchDto>>> GetAllTeamMatches(Guid teamId, PaginationDto pagination)
         {
-            return await _repository.DeleteAsync(id);
+            try
+            {
+                var response = await _repository.GetAllTeamMatches(teamId, pagination.pageSize,pagination.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+
+            }
+            catch (Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
         }
-        //special repo
-        public async Task<IEnumerable<Match>> GetAllWithTeamsAsync()
+
+        public async Task<Result<MatchDto?>> GetMatchById(Guid id)
         {
-            return await _repository.GetAllWithTeamsAsync();
+            try
+            {
+                var response = await _repository.GetMatchById(id);
+                var mapped = _mapper.Map<MatchDto>(response);
+                return Result<MatchDto?>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<MatchDto?>.Failure(ex.Message);
+            }
         }
-        public async Task<Match?> GetByIdWithTeamsAsync(Guid id)
+
+        public async Task<Result<IEnumerable<MatchDto>>> GetMatchesByDate(Guid teamId,DateOnly date)
         {
-            return await _repository.GetByIdWithTeamsAsync(id);
+            var response = await _repository.GetMatchesByDate(teamId, date);
+            var mapped = _mapper.Map<IEnumerable<MatchDto>>(response);
+            return Result<IEnumerable<MatchDto>>.Success(mapped);
+        }
+
+        public async Task<Result<PaginationResponse<MatchDto>>> GetMatchesByStatus(Guid teamId,MatchStatues status, PaginationDto pagination)
+        {
+            try
+            {
+                var response = await _repository.GetMatchesByStatus(teamId, status, pagination.pageSize, pagination.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<PaginationResponse<MatchDto>>> GetMatchesHistory(Guid teamId,PaginationDto dto)
+        {
+            try
+            {
+                var response = await _repository.GetMatchesHistory(teamId, dto.pageSize,dto.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<MatchDto?>> GetNextMatch(Guid teamId)
+        {
+            try { 
+                 var response = await _repository.GetNextMatch(teamId);
+                var mapped = _mapper.Map<MatchDto>(response);
+                return Result<MatchDto?>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<MatchDto?>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<PaginationResponse<MatchDto>>> GetPendingMatchesRequests(Guid teamId,PaginationDto dto)
+        {
+            try
+            {
+                var response = await _repository.GetPendingMatchesRequests(teamId,dto.pageSize,dto.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+            }
+            catch(Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<PaginationResponse<MatchDto>>> GetPendingMatchesSent(Guid teamId, PaginationDto dto)
+        {
+            try
+            {
+                var response = await _repository.GetPendingMatchesSent(teamId, dto.pageSize, dto.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
+        }
+        public async Task<Result<PaginationResponse<MatchDto>>> GetTeamSchedule(Guid teamId,PaginationDto dto)
+        {
+            try
+            {
+                var response = await _repository.GetTeamSchedule(teamId, dto.pageSize, dto.pageNumber);
+                var mapped = _mapper.Map<PaginationResponse<MatchDto>>(response);
+                return Result<PaginationResponse<MatchDto>>.Success(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Result<PaginationResponse<MatchDto>>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<Match?>> UpdateMatchScore(Guid id, Guid captinId, int score)
+        {
+            try
+            {
+                var match = await _repository.GetByIdAsync(id);
+                if (match == null)
+                    return Result<Match?>.Failure("Match not found");
+                var response = await _repository.UpdateMatchScoreAsync(id, captinId, score);
+                bool isScoreUpdated = await _repository.IsScoreUpdated(id);
+                if (isScoreUpdated)
+                {
+                    await _repository.ChangeStatus(id, MatchStatues.Completed);
+                    await _tmsrvc.UpdateStatsAsync(new UpdateTeamStatsDto {
+                        homeId = match.homeTeamId, 
+                        awayId = match.awayTeamId,
+                        homeScore = match.homeScore,
+                        awayScore = match.awayScore,
+                    });
+                }
+                return Result<Match?>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<Match?>.Failure(ex.Message);
+            }
         }
     }
 }

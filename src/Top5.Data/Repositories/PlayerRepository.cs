@@ -31,7 +31,7 @@ namespace Top5.Data.Repositories
             return player;
         }
 
-        public async Task<PlayerDetailsProjection?> GetPlayerDtoAsync(Guid id)
+        public async Task<PlayerDetailsProjection> GetPlayerDtoAsync(Guid id)
         {
             var player = await _context.Players
                 .AsNoTracking()

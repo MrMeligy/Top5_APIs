@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Top5.Contracts.DTOs
 {
-    public class UpdateTeamStatsDto
+    public class MatchScoreDto
     {
-        public Guid homeId { get; set; }
-        public Guid awayId { get; set; }
         public int homeScore { get; set; }
         public int awayScore { get; set; }
     }
