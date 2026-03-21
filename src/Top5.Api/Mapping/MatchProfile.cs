@@ -25,6 +25,7 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.statues))
                .ForMember(dest => dest.kickOff,
                    opt => opt.MapFrom(src => src.kickOff));
+            CreateMap<CreateMatchDto, Match>();
             CreateMap(typeof(PaginationResponse<>), typeof(PaginationResponse<>));
         }
     }

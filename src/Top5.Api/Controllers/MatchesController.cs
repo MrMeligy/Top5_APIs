@@ -101,7 +101,7 @@ namespace Top5.Api.Controllers
         /// </summary>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateMatch([FromBody] Match match)
+        public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDto match)
         {
             var response = await _matchService.CreateAsync(match);
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);

@@ -34,15 +34,16 @@ namespace Top5.Business.Services
             }
         }
 
-        public async Task<Result<MatchDto>> CreateAsync(Match match)
+        public async Task<Result<MatchDto>> CreateAsync(CreateMatchDto dto)
         {
             try
             {
-                bool hasAnotherMatches = await _repository.HasAnotherMatch(match.homeTeamId,match.awayTeamId,match.kickOff);
+                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.homeTeamId,dto.awayTeamId,dto.kickOff);
                 if (hasAnotherMatches)
                 {
                     return Result<MatchDto>.Failure("Team Has another match in this time");
                 }
+                var match = _mapper.Map<Match>(dto);
                 var response = await _repository.AddAsync(match);
                 var mapped = _mapper.Map<MatchDto>(response);
                 return Result<MatchDto>.Success(mapped);
