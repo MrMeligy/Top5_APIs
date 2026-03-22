@@ -62,9 +62,9 @@ namespace Top5.Api.Controllers
         /// </summary>
         [HttpGet("Rejected/{teamId:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetRejectedMatches(Guid teamId, MatchStatues status ,int pageSize, int pageNumber)
+        public async Task<IActionResult> GetRejectedMatches(Guid teamId, int pageSize, int pageNumber)
         {
-            var response = await _matchService.GetMatchesByStatus(teamId,status, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
+            var response = await _matchService.GetMatchesByStatus(teamId,MatchStatues.Rejected, new PaginationDto { pageNumber = pageNumber, pageSize = pageSize });
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
         [HttpGet("Date/{teamId:guid}")]
@@ -133,7 +133,10 @@ namespace Top5.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ChangeStatusAsync(Guid id, MatchStatues statues)
         {
-            var response = await _matchService.ChangeStatus(id, statues);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+                return Failed("Not Authorized", 401);
+            var response = await _matchService.ChangeStatus(id, statues,userId);
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
 
         }

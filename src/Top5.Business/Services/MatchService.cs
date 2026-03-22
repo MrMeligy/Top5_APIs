@@ -23,11 +23,27 @@ namespace Top5.Business.Services
             _tmrepo = tmrepo;
         }
 
-        public async Task<Result<bool>> ChangeStatus(Guid matchId, MatchStatues newStatus)
+        public async Task<Result<bool>> ChangeStatus(Guid matchId, MatchStatues newStatus,Guid captinId)
         {
             try
             {
+                var match = await _repository.GetByIdAsync(matchId);
+                if (match == null) {
+                    return Result<bool>.Failure("Match is Not Exist");
+                }
+                if (newStatus==MatchStatues.Accepted && captinId != match.awayTeam.captinId)
+                {
+                    return Result<bool>.Failure("You Can't Accept Your Request");
+                }
+                if (captinId!=match.homeTeam.captinId || captinId != match.awayTeam.captinId)
+                {
+                    return Result<bool>.Failure("You Can't Change Match Status");
+                }
                var response = await _repository.ChangeStatus(matchId, newStatus);
+                if (newStatus == MatchStatues.Accepted)
+                {
+                    await _repository.RejectMatchesInSameTime(match.kickOff, match.endTime);
+                }
                 return Result<bool>.Success(response);
             }
             catch (Exception ex)
@@ -62,7 +78,7 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchDto>.Failure("Can't Make Match with the same team");
                 }
-                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.homeTeamId,dto.awayTeamId,dto.kickOff,dto.endTime);
+                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.kickOff,dto.endTime);
                 if (hasAnotherMatches)
                 {
                     return Result<MatchDto>.Failure("There is another match at this time");

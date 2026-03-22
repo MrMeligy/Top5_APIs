@@ -209,7 +209,7 @@ namespace Top5.Data.Repositories
                 };
         }
 
-        public async Task<bool> HasAnotherMatch(Guid homeTeamId,Guid awayTeamId, DateTime kickOff,DateTime endTime)
+        public async Task<bool> HasAnotherMatch(DateTime kickOff,DateTime endTime)
         {
             return await _dbSet.AnyAsync(m =>
                 m.kickOff < endTime &&
@@ -226,6 +226,19 @@ namespace Top5.Data.Repositories
                     && m.IsHomeCaptinUpdated
                     && m.IsAwayCaptinUpdated);
         }
+
+        public async Task<bool> RejectMatchesInSameTime(DateTime kickOff, DateTime endTime)
+        {
+            await _dbSet.Where(m =>
+                m.kickOff < endTime &&
+                m.endTime > kickOff &&
+                m.statues == MatchStatues.Accepted
+                ).ExecuteUpdateAsync(s => s
+                .SetProperty(m => m.statues, MatchStatues.Rejected)
+            );
+            return true;
+        }
+
         public async Task<Match?> UpdateMatchScoreAsync(Guid id, Guid captinId, int score)
         {
             var isHomeTeam = _dbSet.Any(m => m.id == id && m.homeTeamId == captinId);
