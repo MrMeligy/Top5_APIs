@@ -12,5 +12,6 @@ namespace Top5.Contracts.DTOs
         public string matchFormat { get; set; }
         public bool isComptitve { get; set; }
         public DateTime kickOff { get; set; }
+        public DateTime endTime { get; set; }
     }
 }

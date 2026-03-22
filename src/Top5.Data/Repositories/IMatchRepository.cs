@@ -16,7 +16,7 @@ namespace Top5.Data.Repositories
         Task<PaginationResponse<Match>> GetPendingMatchesSent(Guid teamId, int pageSize, int pageNumber);
         Task<PaginationResponse<Match>> GetPendingMatchesRequests(Guid teamId, int pageSize, int pageNumber);
         Task<IEnumerable<Match>> GetMatchesByDate(Guid teamId, DateOnly date);
-        Task<bool> HasAnotherMatch(Guid homeTeamId,Guid awayTeamId, DateTime date);
+        Task<bool> HasAnotherMatch(Guid homeTeamId,Guid awayTeamId,DateTime kickOff ,DateTime endTime);
         Task<PaginationResponse<Match>> GetMatchesHistory(Guid teamId, int pageSize, int pageNumber);
         Task<PaginationResponse<Match>> GetTeamSchedule(Guid teamId, int pageSize, int pageNumber);
         Task<PaginationResponse<Match>> GetAllTeamMatches(Guid teamId, int pageSize,int pageNumber);

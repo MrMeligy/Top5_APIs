@@ -209,15 +209,12 @@ namespace Top5.Data.Repositories
                 };
         }
 
-        public async Task<bool> HasAnotherMatch(Guid homeTeamId,Guid awayTeamId, DateTime date)
+        public async Task<bool> HasAnotherMatch(Guid homeTeamId,Guid awayTeamId, DateTime kickOff,DateTime endTime)
         {
-            var start = new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0);
-            var end = start.AddHours(1);
-
             return await _dbSet.AnyAsync(m =>
-                (m.homeTeamId == homeTeamId || m.awayTeamId == awayTeamId) &&
-                m.kickOff >= start &&
-                m.kickOff < end);
+                m.kickOff < endTime &&
+                m.endTime > kickOff
+            );
         }
 
         public async Task<bool> IsScoreUpdated(Guid id)

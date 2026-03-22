@@ -16,6 +16,7 @@ namespace Top5.Domain.Entities
         public bool IsHomeCaptinUpdated { get; set; } = false;
         public bool IsAwayCaptinUpdated { get; set; } = false;
         public DateTime kickOff { get; set; }
+        public DateTime endTime { get; set; }
         public MatchStatues statues { get; set; } = MatchStatues.Pending;
         public string matchFormat { get; set; } = "5 vs 5";
         public bool isComptitve { get; set; }

@@ -38,10 +38,14 @@ namespace Top5.Business.Services
         {
             try
             {
-                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.homeTeamId,dto.awayTeamId,dto.kickOff);
+                if (dto.homeTeamId == dto.awayTeamId)
+                {
+                    return Result<MatchDto>.Failure("Can't Make Match with the same team");
+                }
+                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.homeTeamId,dto.awayTeamId,dto.kickOff,dto.endTime);
                 if (hasAnotherMatches)
                 {
-                    return Result<MatchDto>.Failure("Team Has another match in this time");
+                    return Result<MatchDto>.Failure("There is another match at this time");
                 }
                 var match = _mapper.Map<Match>(dto);
                 var response = await _repository.AddAsync(match);
