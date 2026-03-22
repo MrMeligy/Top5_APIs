@@ -12,13 +12,15 @@ namespace Top5.Business.Services
     {
         private readonly IMatchRepository _repository;
         private readonly ITeamService _tmsrvc;
+        private readonly ITeamRepository _tmrepo;
         private readonly IMapper _mapper;
 
-        public MatchService(IMatchRepository repository, ITeamService tmsrvc, IMapper mapper)
+        public MatchService(IMatchRepository repository, ITeamService tmsrvc, IMapper mapper, ITeamRepository tmrepo)
         {
             _repository = repository;
             _tmsrvc = tmsrvc;
             _mapper = mapper;
+            _tmrepo = tmrepo;
         }
 
         public async Task<Result<bool>> ChangeStatus(Guid matchId, MatchStatues newStatus)
@@ -38,7 +40,13 @@ namespace Top5.Business.Services
         {
             try
             {
-                if (dto.homeTeamId != captinId)
+                var homeTeam = await _tmrepo.GetByIdAsync(dto.homeTeamId);
+                var awayTeam = await _tmrepo.GetByIdAsync(dto.awayTeamId);
+                if (homeTeam == null||awayTeam==null)
+                {
+                    return Result<MatchDto>.Failure("Team Not Exist");
+                }
+                if (homeTeam.captinId != captinId)
                 {
                     return Result<MatchDto>.Failure("User Not Allowed To Create This Match");
                 }
