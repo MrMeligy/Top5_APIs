@@ -2,6 +2,7 @@ using AutoMapper;
 using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Top5.Business.Result;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
@@ -103,7 +104,10 @@ namespace Top5.Api.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDto match)
         {
-            var response = await _matchService.CreateAsync(match);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+                return Failed("Not Authorized", 401);
+            var response = await _matchService.CreateAsync(match,userId);
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
@@ -114,9 +118,12 @@ namespace Top5.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMatchScoreAsync(Guid id, Guid captinId, int score)
+        public async Task<IActionResult> UpdateMatchScoreAsync(Guid id, int score)
         {
-            var response = await _matchService.UpdateMatchScore(id, captinId,score);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+                return Failed("Not Authorized", 401);
+            var response = await _matchService.UpdateMatchScore(id, userId,score);
             return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
 
         }

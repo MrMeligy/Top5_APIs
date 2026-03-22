@@ -34,10 +34,14 @@ namespace Top5.Business.Services
             }
         }
 
-        public async Task<Result<MatchDto>> CreateAsync(CreateMatchDto dto)
+        public async Task<Result<MatchDto>> CreateAsync(CreateMatchDto dto,Guid captinId)
         {
             try
             {
+                if (dto.homeTeamId != captinId)
+                {
+                    return Result<MatchDto>.Failure("User Not Allowed To Create This Match");
+                }
                 if (dto.homeTeamId == dto.awayTeamId)
                 {
                     return Result<MatchDto>.Failure("Can't Make Match with the same team");
