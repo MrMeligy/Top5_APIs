@@ -40,6 +40,14 @@ namespace Top5.Business.Services
         {
             try
             {
+                if(dto.kickOff <= DateTime.Now.AddMinutes(59))
+                {
+                    return Result<MatchDto>.Failure("Match Can't be in past or just now");
+                }
+                if(dto.endTime <= dto.kickOff.AddMinutes(59))
+                {
+                    return Result<MatchDto>.Failure("Match Can't be less than 1 hour");
+                }
                 var homeTeam = await _tmrepo.GetByIdAsync(dto.homeTeamId);
                 var awayTeam = await _tmrepo.GetByIdAsync(dto.awayTeamId);
                 if (homeTeam == null||awayTeam==null)

@@ -213,7 +213,8 @@ namespace Top5.Data.Repositories
         {
             return await _dbSet.AnyAsync(m =>
                 m.kickOff < endTime &&
-                m.endTime > kickOff
+                m.endTime > kickOff &&
+                m.statues == MatchStatues.Accepted
             );
         }
 
