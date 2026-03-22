@@ -184,12 +184,16 @@ namespace Top5.Business.Services
                 if (isScoreUpdated)
                 {
                     await _repository.ChangeStatus(id, MatchStatues.Completed);
-                    await _tmsrvc.UpdateStatsAsync(new UpdateTeamStatsDto {
-                        homeId = match.homeTeamId, 
-                        awayId = match.awayTeamId,
-                        homeScore = match.homeScore,
-                        awayScore = match.awayScore,
-                    });
+                    if (match.isComptitve)
+                    {
+                        await _tmsrvc.UpdateStatsAsync(new UpdateTeamStatsDto
+                        {
+                            homeId = match.homeTeamId,
+                            awayId = match.awayTeamId,
+                            homeScore = match.homeScore,
+                            awayScore = match.awayScore,
+                        });
+                    }
                 }
                 return Result<Match?>.Success(response);
             }
