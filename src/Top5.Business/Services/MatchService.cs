@@ -27,15 +27,21 @@ namespace Top5.Business.Services
         {
             try
             {
+                if(newStatus == MatchStatues.Completed)
+                {
+                    return Result<bool>.Failure("You can't Complete matches manually");
+                }
                 var match = await _repository.GetByIdAsync(matchId);
                 if (match == null) {
                     return Result<bool>.Failure("Match is Not Exist");
                 }
-                if (newStatus==MatchStatues.Accepted && captinId != match.awayTeam.captinId)
+                var homeTeam = await _tmrepo.GetByIdAsync(match.homeTeamId);
+                var awayTeam = await _tmrepo.GetByIdAsync(match.awayTeamId);
+                if (newStatus==MatchStatues.Accepted && captinId != awayTeam!.captinId)
                 {
                     return Result<bool>.Failure("You Can't Accept Your Request");
                 }
-                if (captinId!=match.homeTeam.captinId || captinId != match.awayTeam.captinId)
+                if (captinId!=match.homeTeam.captinId && captinId != match.awayTeam.captinId)
                 {
                     return Result<bool>.Failure("You Can't Change Match Status");
                 }
@@ -220,6 +226,10 @@ namespace Top5.Business.Services
                 if (match == null)
                     return Result<Match?>.Failure("Match not found");
                 var response = await _repository.UpdateMatchScoreAsync(id, captinId, score);
+                if (response == null)
+                {
+                    return Result<Match?>.Failure("Just Team Captin can Update The Score");
+                }
                 bool isScoreUpdated = await _repository.IsScoreUpdated(id);
                 if (isScoreUpdated)
                 {

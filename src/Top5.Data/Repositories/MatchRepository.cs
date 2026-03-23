@@ -232,7 +232,7 @@ namespace Top5.Data.Repositories
             await _dbSet.Where(m =>
                 m.kickOff < endTime &&
                 m.endTime > kickOff &&
-                m.statues == MatchStatues.Accepted
+                m.statues == MatchStatues.Pending
                 ).ExecuteUpdateAsync(s => s
                 .SetProperty(m => m.statues, MatchStatues.Rejected)
             );
@@ -241,10 +241,10 @@ namespace Top5.Data.Repositories
 
         public async Task<Match?> UpdateMatchScoreAsync(Guid id, Guid captinId, int score)
         {
-            var isHomeTeam = _dbSet.Any(m => m.id == id && m.homeTeamId == captinId);
+            var isHomeTeam = _dbSet.Any(m => m.id == id && m.homeTeam.captinId == captinId);
             var isAwayTeam = false;
             if (!isHomeTeam)
-                isAwayTeam = _dbSet.Any(m => m.id == id && m.awayTeamId == captinId);
+                isAwayTeam = _dbSet.Any(m => m.id == id && m.awayTeam.captinId == captinId);
             if (isHomeTeam)
             {
                 await _dbSet.Where(m => m.id == id)
