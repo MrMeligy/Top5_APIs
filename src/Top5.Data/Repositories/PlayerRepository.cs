@@ -118,6 +118,7 @@ namespace Top5.Data.Repositories
             .Where(p => EF.Functions.Like(p.username, $"%{userName}%"));
             var totalCount = await query.CountAsync();
             var players = await query
+                .OrderBy(p =>p.username)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize).AsNoTracking().ToListAsync();
             return new PaginationResponse<Player>

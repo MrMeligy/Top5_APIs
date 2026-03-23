@@ -63,6 +63,7 @@ namespace Top5.Data.Repositories
 
             var teams = await query.Include(c => c.captin)
                 .AsNoTracking()
+                .OrderBy(t=>t.name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
