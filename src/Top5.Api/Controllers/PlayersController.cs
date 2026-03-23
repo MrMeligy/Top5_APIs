@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Top5.Api.Mapping;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Domain.Entities;
 using Top5.Domain.Models;
 
@@ -35,14 +36,14 @@ namespace Top5.Api.Controllers
         }
         [HttpGet("Search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchPlayers(string userName)
+        public async Task<IActionResult> SearchPlayers(string userName,int pageSize,int pageNumber)
         {
-            var response = await _playerService.SearchPlayersAsync(userName);
+            var response = await _playerService.SearchPlayersAsync(userName,pageSize,pageNumber);
             if (!response.IsSuccess)
             {
                 return Failed(response.Error!,400);
             }
-            var resDto = _mapper.Map<IEnumerable<PlayerDto>>(response.Value);
+            var resDto = _mapper.Map<PaginationResponse<PlayerDto>>(response.Value);
             return Success(resDto);
 
         }

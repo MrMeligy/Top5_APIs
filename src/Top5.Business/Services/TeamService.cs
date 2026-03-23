@@ -1,5 +1,6 @@
 using Top5.Business.Result;
 using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Data.Repositories;
 using Top5.Domain.Entities;
 
@@ -86,30 +87,30 @@ namespace Top5.Business.Services
                 return Result<bool>.Failure($"An error occurred while deleting the team: {ex.Message}");
             }
         }
-        public async Task<Result<IEnumerable<Team>>> GetLeaderBoard(PaginationDto dto)
+        public async Task<Result<PaginationResponse<Team>>> GetLeaderBoard(PaginationDto dto)
         {
             try
             {
                 var teams = await _repository.LeaderBoard(dto.pageNumber, dto.pageSize);
-                return Result<IEnumerable<Team>>.Success(teams);
+                return Result<PaginationResponse<Team>>.Success(teams);
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<Team>>.Failure($"An error occurred while retrieving the leaderboard: {ex.Message}");
+                return Result<PaginationResponse<Team>>.Failure($"An error occurred while retrieving the leaderboard: {ex.Message}");
             }
             }
 
-        public async Task<Result<IEnumerable<Team>>> SearchTeam(PaginationDto dto, string name)
+        public async Task<Result<PaginationResponse<Team>>> SearchTeam(PaginationDto dto, string name)
         {
             try
             {
                 var teams = await _repository.SearchTeam(dto.pageNumber, dto.pageSize, name);
-                return Result<IEnumerable<Team>>.Success(teams);
+                return Result<PaginationResponse<Team>>.Success(teams);
 
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<Team>>.Failure($"An error occurred while searching for teams: {ex.Message}");
+                return Result<PaginationResponse<Team>>.Failure($"An error occurred while searching for teams: {ex.Message}");
             }
         }
 

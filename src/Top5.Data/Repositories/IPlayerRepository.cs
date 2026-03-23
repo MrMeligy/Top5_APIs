@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Top5.Contracts.Helper;
 using Top5.Data.Projections;
 using Top5.Domain.Models;
 
@@ -13,7 +14,7 @@ namespace Top5.Data.Repositories
         Task<Guid?> isPhoneExist(string phone);
         Task<Guid?> isUserNameExist(string username);
         Task<bool> isExistAsync(Player player);
-        Task<IEnumerable<Player>> SearchPlayersAsync(string userName);
+        Task<PaginationResponse<Player>> SearchPlayersAsync(string userName,int pageSize,int pageNumber);
 
     }
 }

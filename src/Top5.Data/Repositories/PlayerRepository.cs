@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using Top5.Contracts.Helper;
 using Top5.Data.Projections;
 using Top5.Domain.Entities;
 using Top5.Domain.Models;
@@ -110,11 +112,22 @@ namespace Top5.Data.Repositories
         );
         }
 
-        public async Task<IEnumerable<Player>> SearchPlayersAsync(string userName)
+        public async Task<PaginationResponse<Player>> SearchPlayersAsync(string userName, int pageSize, int pageNumber)
         {
-            return await _context.Players
-        .AsNoTracking()
-            .Where(p => EF.Functions.Like(p.username, $"%{userName}%")).ToListAsync();
+            var query = _context.Players
+            .Where(p => EF.Functions.Like(p.username, $"%{userName}%"));
+            var totalCount = await query.CountAsync();
+            var players = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize).AsNoTracking().ToListAsync();
+            return new PaginationResponse<Player>
+            {
+                Data = players,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
         }
     }
 }

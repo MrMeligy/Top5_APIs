@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using Top5.Contracts.Helper;
 using Top5.Domain.Entities;
 
 namespace Top5.Data.Repositories
@@ -28,11 +30,13 @@ namespace Top5.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Team>> LeaderBoard(int pageNumber,int pageSize)
+        public async Task<PaginationResponse<Team>> LeaderBoard(int pageNumber,int pageSize)
         {
-            return await _dbSet
-                .Where(t => t.matchCount > 0)
-                .Include(c => c.captin)
+            var query =  _dbSet.Where(t => t.matchCount > 0);
+
+            var totalCount = await query.CountAsync();
+
+            var teams = await query.Include(c => c.captin)
                 .OrderByDescending(t => t.points)
                 .ThenByDescending(t => t.goals - t.goalsAgainest)
                 .ThenByDescending(t => t.goals)
@@ -40,17 +44,37 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .AsNoTracking()
                 .ToListAsync();
+            
+            return new PaginationResponse<Team>
+            {
+                Data = teams,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
         }
 
-        public async Task<IEnumerable<Team>> SearchTeam(int pageNumber, int pageSize,string name)
+        public async Task<PaginationResponse<Team>> SearchTeam(int pageNumber, int pageSize,string name)
         {
-            return await _dbSet
-                .Where(t => EF.Functions.Like(t.name, $"%{name}%"))
-                .Include(c => c.captin)
+            var query = _dbSet
+                .Where(t => EF.Functions.Like(t.name, $"%{name}%"));
+            var totalCount = await query.CountAsync();
+
+            var teams = await query.Include(c => c.captin)
                 .AsNoTracking()
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            
+            return new PaginationResponse<Team>
+            {
+                Data = teams,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
         }
     }
 }

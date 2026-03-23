@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Domain.Entities;
 
 namespace Top5.Api.Controllers
@@ -48,7 +49,7 @@ namespace Top5.Api.Controllers
             var response = await _teamService.SearchTeam(paginationDto,name);
             if (!response.IsSuccess)
                 return Failed(response.Error!,404);
-            var dto = _mapper.Map<IEnumerable<TeamDto>>(response.Value);
+            var dto = _mapper.Map<PaginationResponse<TeamDto>>(response.Value);
             return Success(dto); 
         }
         [HttpGet("/standings")]
@@ -59,7 +60,7 @@ namespace Top5.Api.Controllers
             var response = await _teamService.GetLeaderBoard(paginationDto);
             if (!response.IsSuccess)
                 return Failed(response.Error!,404);
-            var dto = _mapper.Map<IEnumerable<TeamDto>>(response.Value);
+            var dto = _mapper.Map<PaginationResponse<TeamDto>>(response.Value);
             return Success(dto); 
         }
 

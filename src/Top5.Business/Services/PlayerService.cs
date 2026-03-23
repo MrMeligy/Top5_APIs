@@ -1,5 +1,6 @@
 using Top5.Business.Result;
 using Top5.Contracts.DTOs;
+using Top5.Contracts.Helper;
 using Top5.Data.Repositories;
 using Top5.Domain.Models;
 
@@ -119,16 +120,16 @@ namespace Top5.Business.Services
                 return Result<bool>.Failure(ex.Message);
             }
         }
-        public async Task<Result<IEnumerable<Player>>> SearchPlayersAsync(string userName)
+        public async Task<Result<PaginationResponse<Player>>> SearchPlayersAsync(string userName, int pageSize, int pageNumber)
         {
             try
             {
-                var result = await _repository.SearchPlayersAsync(userName);
-                return Result<IEnumerable<Player>>.Success(result);
+                var result = await _repository.SearchPlayersAsync(userName,pageSize,pageNumber);
+                return Result<PaginationResponse<Player>>.Success(result);
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<Player>>.Failure(ex.Message);
+                return Result<PaginationResponse<Player>>.Failure(ex.Message);
             }
         }
     }
