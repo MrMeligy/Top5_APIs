@@ -1,23 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json.Serialization;
-using Top5.Domain.Models;
 
-namespace Top5.Domain.Entities
+namespace Top5.Contracts.DTOs
 {
-    public class TeamPlayers
+    public class CreateTeamPlayerDto
     {
-        public Guid id {  get; set; }
         public Guid playerId { get; set; }
         public Guid teamId { get; set; }
         public DateTime JoinedOn { get; set; } = DateTime.Now;
         public bool IsLeft { get; set; } = false;
         public DateTime? LeftTime { get; set; }
-        [JsonIgnore]
-        public Player player { get; set; }
-        [JsonIgnore]
-        public Team team { get; set; }
-
     }
 }

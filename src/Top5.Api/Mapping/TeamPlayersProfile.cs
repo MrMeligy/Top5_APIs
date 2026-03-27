@@ -20,7 +20,8 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.team.name))
                 .ForMember(dest => dest.teamPicUrl,
                    opt => opt.MapFrom(src => src.team.picUrl));
-                
+            CreateMap<CreateTeamPlayerDto, TeamPlayers>();
+
         }
     }
 }

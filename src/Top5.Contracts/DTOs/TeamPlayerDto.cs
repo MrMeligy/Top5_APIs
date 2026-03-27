@@ -17,6 +17,9 @@ namespace Top5.Contracts.DTOs
         public string teamName { get; set; }
         public string playerPicUrl { get; set; }
         public string teamPicUrl { get; set; }
+        public DateTime JoinedOn { get; set; }
+        public bool IsLeft { get; set; }
+        public DateTime? LeftTime { get; set; }
         public Positions position { get; set; }
         public string phone { get; set; }
 

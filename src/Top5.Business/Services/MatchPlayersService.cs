@@ -13,14 +13,16 @@ namespace Top5.Business.Services
         private readonly IMatchPlayerRepository _repository;
         private readonly IMatchRepository _matchRepository;
         private readonly ITeamRepository _teamRepository;
+        private readonly ITeamPlayersRepository _teamPlayerRepository;
         private readonly IMapper _mapper;
 
         public MatchPlayersService(IMatchPlayerRepository repository,IMatchRepository matchRepository,
-            ITeamRepository teamRepository,IMapper mapper)
+            ITeamRepository teamRepository,IMapper mapper,ITeamPlayersRepository teamPlayersRepository)
         {
             _repository = repository;
             _matchRepository = matchRepository;
             _teamRepository = teamRepository;
+            _teamPlayerRepository = teamPlayersRepository;
             _mapper = mapper;
         }
 
@@ -38,6 +40,11 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchPlayerDto>.Failure("Team Not Found");
                 }
+                // add check that player in that team
+                if(await _teamPlayerRepository.IsAtTeam(dto.teamId, dto.playerId)==false)
+                {
+                    return Result<MatchPlayerDto>.Failure("The Player Is Not In this Team!");
+                }
                 if (match.homeTeamId != team.id && match.awayTeamId != team.id) 
                 { 
                     return Result<MatchPlayerDto>.Failure("Team Not In This Match");    
@@ -50,7 +57,6 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchPlayerDto>.Failure("Invalid States Value");
                 }
-                // add check that player in that team
                 var teamState = await _repository.GetTeamStatsByMatchAsync(dto.teamId, dto.matchId);
                 int teamScore = 0;
                 if (dto.teamId == match.homeTeamId)

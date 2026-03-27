@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
@@ -11,99 +12,45 @@ namespace Top5.Api.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Authorize]
-    public class TeamPlayersController : ControllerBase
+    public class TeamPlayersController : BaseController
     {
         private readonly ITeamPlayersService _teamPlayersService;
-        private readonly IMapper _mapper;
-        public TeamPlayersController(ITeamPlayersService teamPlayersService,IMapper mapper)
+        public TeamPlayersController(ITeamPlayersService teamPlayersService)
         {
             _teamPlayersService = teamPlayersService;
-            _mapper = mapper;
         }
 
-        /// <summary>
-        /// Get all team players
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<TeamPlayers>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<TeamPlayers>>> GetAllTeamPlayers()
+        [HttpGet("{playerId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerTeams(Guid playerId)
         {
-            var teamPlayers = await _teamPlayersService.GetAllAsync();
-            return Ok(teamPlayers);
+            var response = await _teamPlayersService.GetPlayerTeams(playerId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
-
-        /// <summary>
-        /// Get a team player by ID
-        /// </summary>
-        [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(TeamPlayers), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TeamPlayers>> GetTeamPlayersById(Guid id)
+        [HttpGet("team/{teamId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTeamPlayers(Guid teamId)
         {
-            var teamPlayers = await _teamPlayersService.GetByIdAsync(id);
-            if (teamPlayers == null)
-                return NotFound();
-
-            return Ok(teamPlayers);
+            var response = await _teamPlayersService.GetTeamPlayers(teamId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
-
-        /// <summary>
-        /// Get a team player by ID
-        /// </summary>
-        [HttpGet("GetTeamPlayers/{teamId:guid}")]
-        [ProducesResponseType(typeof(IEnumerable<TeamPlayerDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<TeamPlayerDto>>> GetTeamPlayers(Guid teamId)
-        {
-            var teamPlayers = await _teamPlayersService.GetTeamPlayersAsync(teamId);
-            if (teamPlayers == null)
-                return NotFound();
-            var dto = _mapper.Map<IEnumerable<TeamPlayerDto>>(teamPlayers);
-            return Ok(dto);
-        }
-
-        /// <summary>
-        /// Create a new team player
-        /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(TeamPlayers), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<TeamPlayers>> CreateTeamPlayers([FromBody] TeamPlayers teamPlayers)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateTeamPlayers(CreateTeamPlayerDto dto)
         {
-            var createdTeamPlayers = await _teamPlayersService.CreateAsync(teamPlayers);
-            return CreatedAtAction(nameof(GetTeamPlayersById), new { id = createdTeamPlayers.id }, createdTeamPlayers);
+            var response = await _teamPlayersService.CreateAsync(dto);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ExitTeam(Guid teamId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = Guid.Parse(userId!);
+            var response = await _teamPlayersService.ExitFromTeam(teamId,id);
+            return response!.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Update an existing team player
-        /// </summary>
-        [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(TeamPlayers), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<TeamPlayers>> UpdateTeamPlayers(Guid id, [FromBody] TeamPlayers teamPlayers)
-        {
-            var updatedTeamPlayers = await _teamPlayersService.UpdateAsync(id, teamPlayers);
-            if (updatedTeamPlayers == null)
-                return NotFound();
-
-            return Ok(updatedTeamPlayers);
-        }
-
-        /// <summary>
-        /// Delete a team player
-        /// </summary>
-        [HttpDelete("{id:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTeamPlayers(Guid id)
-        {
-            var deleted = await _teamPlayersService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
-        }
     }
 }
 
