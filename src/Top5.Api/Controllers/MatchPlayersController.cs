@@ -1,6 +1,9 @@
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Top5.Business.Result;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
@@ -11,144 +14,73 @@ namespace Top5.Api.Controllers
     [Route("api/[controller]")]
     [Produces("application/json")]
     [Authorize]
-    public class MatchPlayersController : ControllerBase
+    public class MatchPlayersController : BaseController
     {
         private readonly IMatchPlayersService _matchPlayersService;
-        private readonly IMapper _mapper;
 
-        public MatchPlayersController(IMatchPlayersService matchPlayersService,IMapper mapper)
+        public MatchPlayersController(IMatchPlayersService matchPlayersService)
         {
-            _mapper = mapper;
             _matchPlayersService = matchPlayersService;
         }
 
-        /// <summary>
-        /// Get all match players
-        /// </summary>
-        [HttpGet("{id:guid}/view")]
-        [ProducesResponseType(typeof(MatchPlayerDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<MatchPlayerDto>> GetByMatchPlayerViewAsync(Guid id)
+        [HttpGet("Match/{matchId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMatchPlayers(Guid matchId)
         {
-            var matchPlayers = await _matchPlayersService.GetByMatchPlayerViewAsync(id);
-            var matchPlayersDto = _mapper.Map<MatchPlayerDto>(matchPlayers);
-            return Ok(matchPlayersDto);
+            var response = await  _matchPlayersService.GetMatchPlayers(matchId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Get all match players
-        /// </summary>
-        [HttpGet("{playerId:guid}/PlayerView")]
-        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetByPlayerMatchesAsync(Guid playerId)
-        {
-            var matchPlayers = await _matchPlayersService.GetByPlayerMatchesAsync(playerId);
-            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
-            return Ok(matchPlayersDto);
-        }
-
-        /// <summary>
-        /// Get all match players
-        /// </summary>
-        [HttpGet("{matchId:guid}/MatchView")]
-        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetByMatchPlayersViewAsync(Guid matchId)
-        {
-            var matchPlayers = await _matchPlayersService.GetByMatchPlayersViewAsync(matchId);
-            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
-            return Ok(matchPlayersDto);
-        }
-
-        /// <summary>
-        /// Get all match players
-        /// </summary>
         [HttpGet("{matchId:guid}/{playerId:guid}")]
-        [ProducesResponseType(typeof(MatchPlayerDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<MatchPlayerDto>> GetMatchAndPlayerAsync(Guid matchId,Guid playerId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerStatsInMatchAsync(Guid matchId, Guid playerId)
         {
-            var matchPlayers = await _matchPlayersService.GetMatchAndPlayerAsync(matchId,playerId);
-            var matchPlayersDto = _mapper.Map<MatchPlayerDto>(matchPlayers);
-            return Ok(matchPlayers);
-        }
-        /// <summary>
-        /// Get all match players
-        /// </summary>
-        [HttpGet("{teamId:guid}/{playerId:guid}/playerTeamStatic")]
-        [ProducesResponseType(typeof(IEnumerable<MatchPlayerDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MatchPlayerDto>>> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId)
-        {
-            var matchPlayers = await _matchPlayersService.GetPlayerTeamStatsAsync(teamId, playerId);
-            var matchPlayersDto = _mapper.Map<IEnumerable<MatchPlayerDto>>(matchPlayers);
-            return Ok(matchPlayersDto);
+            var response = await _matchPlayersService.GetPlayerStatsInMatchAsync(matchId,playerId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Get all match players
-        /// </summary>
+        [HttpGet("PlayerStats/{teamId:guid}/{playerId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId)
+        {
+            var response = await _matchPlayersService.GetPlayerTeamStatsAsync(teamId, playerId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
+
+        [HttpGet("ByTeam")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerMatchesByTeamAsync(Guid teamId, Guid playerId, int pageSize, int pageNumber)
+        {
+            var response = await _matchPlayersService.GetPlayerMatchesByTeamAsync(teamId,playerId,pageSize,pageNumber);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
+        }
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<MatchPlayers>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MatchPlayers>>> GetAllMatchPlayers()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerMatchesAsync(Guid playerId, int pageSize, int pageNumber)
         {
-            var matchPlayers = await _matchPlayersService.GetAllAsync();
-            return Ok(matchPlayers);
+            var response = await _matchPlayersService.GetPlayerMatches(playerId,pageSize,pageNumber);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Get a match player by ID
-        /// </summary>
-        [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(MatchPlayers), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MatchPlayers>> GetMatchPlayersById(Guid id)
+        [HttpGet("PlayerStates/{playerId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPlayerStats(Guid playerId)
         {
-            var matchPlayers = await _matchPlayersService.GetByIdAsync(id);
-            if (matchPlayers == null)
-                return NotFound();
-
-            return Ok(matchPlayers);
+            var response = await _matchPlayersService.GetPlayerStats(playerId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Create a new match player
-        /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(MatchPlayers), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<MatchPlayers>> CreateMatchPlayers([FromBody] MatchPlayers matchPlayers)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateMatchPlayers([FromBody] CreateMatchPlayerDto dto)
         {
-            var createdMatchPlayers = await _matchPlayersService.CreateAsync(matchPlayers);
-            return CreatedAtAction(nameof(GetMatchPlayersById), new { id = createdMatchPlayers.id }, createdMatchPlayers);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+                return Failed("Not Authorized", 401);
+            var response = await _matchPlayersService.CreateAsync(dto,userId);
+            return response.IsSuccess ? Success(response.Value) : Failed(response.Error!, 400);
         }
 
-        /// <summary>
-        /// Update an existing match player
-        /// </summary>
-        [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(MatchPlayers), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<MatchPlayers>> UpdateMatchPlayers(Guid id, [FromBody] MatchPlayers matchPlayers)
-        {
-            var updatedMatchPlayers = await _matchPlayersService.UpdateAsync(id, matchPlayers);
-            if (updatedMatchPlayers == null)
-                return NotFound();
-
-            return Ok(updatedMatchPlayers);
-        }
-
-        /// <summary>
-        /// Delete a match player
-        /// </summary>
-        [HttpDelete("{id:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteMatchPlayers(Guid id)
-        {
-            var deleted = await _matchPlayersService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
-        }
     }
 }
 

@@ -15,6 +15,7 @@ namespace Top5.Domain.Entities
         public int goals { get; set; }
         public int assists { get; set; }
         public int saves { get; set; }
+        public DateTime CreatedOn { get; set; } = DateTime.Now;
         public double rate { get; set; }
         [JsonIgnore]
         public Match match { get; set; }

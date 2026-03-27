@@ -18,11 +18,9 @@ namespace Top5.Api.Controllers
     public class MatchesController : BaseController
     {
         private readonly IMatchService _matchService;
-        private readonly IMapper _mapper;
-        public MatchesController(IMatchService matchService, IMapper mapper)
+        public MatchesController(IMatchService matchService)
         {
             _matchService = matchService;
-            _mapper = mapper;
         }
 
         /// <summary>

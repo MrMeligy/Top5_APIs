@@ -27,6 +27,7 @@ namespace Top5.Api.Mapping
                    opt => opt.MapFrom(src => src.match.homeScore))
                .ForMember(dest => dest.awayScore,
                    opt => opt.MapFrom(src => src.match.awayScore));
+            CreateMap<CreateMatchPlayerDto, MatchPlayers>();
         }
     }
 }
