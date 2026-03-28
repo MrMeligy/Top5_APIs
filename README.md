@@ -68,7 +68,5 @@ cd Top5_APIs
 dotnet restore
 otnet ef migrations add InitialCreate
 dotnet ef database update
-//Make sure you have EF Core tools installed:
 dotnet tool install --global dotnet-ef
-//run
 dotnet run
