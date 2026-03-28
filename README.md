@@ -44,9 +44,13 @@ It’s ideal for:
 
 Top5/
 │── Top5.Api            # Presentation Layer (Controllers)
+
 │── Top5.Application    # Business Logic
+
 │── Top5.Domain         # Entities & Core Models
+
 │── Top5.Data           # Data Access (EF Core, Repositories)
+
 │── Top5.Contracts      # DTOs & Interfaces
 
 ---
