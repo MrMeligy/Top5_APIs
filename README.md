@@ -132,14 +132,3 @@ dotnet test
 
 Full interactive docs available via Swagger at `/swagger`.
 
----
-
-## 🤝 Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
-
----
-
-## 📄 License
-
-MIT
