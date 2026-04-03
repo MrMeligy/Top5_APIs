@@ -50,7 +50,7 @@ It's ideal for:
 Top5/
 ├── src/
 │   ├── Top5.Api          # Presentation layer — controllers, middleware
-│   ├── Top5.Application  # Business logic — services, validators
+│   ├── Top5.Business     # Business logic — services, validators
 │   ├── Top5.Domain       # Entities, enums, domain interfaces
 │   ├── Top5.Data         # EF Core DbContext, repositories, migrations
 │   └── Top5.Contracts    # DTOs and shared interfaces
