@@ -106,12 +106,5 @@ docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrong@Passw0rd" \
 ```
 
 ---
-
-### 🧪 Running Tests
-```bash
-dotnet test
-```
-
----
 Full interactive docs available via Swagger at `/swagger`.
 
