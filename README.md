@@ -118,17 +118,5 @@ dotnet test
 ```
 
 ---
-
-## 📬 API Endpoints (summary)
-
-| Method | Route | Description |
-|---|---|---|
-| GET | `/api/teams` | List all teams |
-| POST | `/api/teams` | Register a new team |
-| GET | `/api/matches` | List scheduled matches |
-| POST | `/api/matches` | Schedule a new match |
-| POST | `/api/matches/{id}/result` | Record match result & update points |
-| GET | `/api/rankings` | Get current Top 5 leaderboard |
-
 Full interactive docs available via Swagger at `/swagger`.
 
