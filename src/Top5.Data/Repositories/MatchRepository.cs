@@ -30,6 +30,7 @@ namespace Top5.Data.Repositories
 
             var matches = await query
                 .AsNoTracking()
+                .Where(m=>m.statues==MatchStatues.Accepted || m.statues == MatchStatues.Completed)
                 .OrderBy(m => m.kickOff)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

@@ -15,7 +15,7 @@ namespace Top5.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    [Authorize]
+    //[Authorize]
     public class PlayersController : BaseController
     {
         private readonly IPlayerService _playerService;
