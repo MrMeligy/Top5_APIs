@@ -20,7 +20,7 @@ namespace Top5.Data.Repositories
                 .ExecuteUpdateAsync(s => s.SetProperty(m => m.statues, newStatus));
             return rows > 0;
         }
-
+        //get all team matches with pagination and filter by statues accepted and completed
         public async Task<PaginationResponse<Match>> GetAllTeamMatches(Guid teamId, int pageSize, int pageNumber)
         {
             var query = _dbSet
