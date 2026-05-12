@@ -52,7 +52,7 @@ namespace Top5.Api.Controllers
             var dto = _mapper.Map<PaginationResponse<TeamDto>>(response.Value);
             return Success(dto); 
         }
-        [HttpGet("/standings")]
+        [HttpGet("standings")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetStandings(int pageNumber,int pageSize)
         {
