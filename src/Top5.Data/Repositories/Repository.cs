@@ -33,14 +33,12 @@ namespace Top5.Data.Repositories
         public virtual async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
 
         public virtual async Task<T> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
 
@@ -51,7 +49,6 @@ namespace Top5.Data.Repositories
                 return false;
 
             _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -83,6 +80,12 @@ namespace Top5.Data.Repositories
                 throw;
             }
             
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+
         }
     }
 }

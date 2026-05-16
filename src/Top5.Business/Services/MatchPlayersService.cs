@@ -79,6 +79,7 @@ namespace Top5.Business.Services
                 }
                 var matchPlayer = _mapper.Map<MatchPlayers>(dto);
                 var response = await _repository.AddAsync(matchPlayer);
+                await _repository.SaveChangesAsync();
                 var mapped = _mapper.Map<MatchPlayerDto>(response);
                 return Result<MatchPlayerDto>.Success(mapped);
 

@@ -91,6 +91,7 @@ namespace Top5.Business.Services
                 }
                 var match = _mapper.Map<Match>(dto);
                 var response = await _repository.AddAsync(match);
+                await _repository.SaveChangesAsync();
                 var mapped = _mapper.Map<MatchDto>(response);
                 return Result<MatchDto>.Success(mapped);
             }
@@ -226,6 +227,7 @@ namespace Top5.Business.Services
                 if (match == null)
                     return Result<Match?>.Failure("Match not found");
                 var response = await _repository.UpdateMatchScoreAsync(id, captinId, score);
+
                 if (response == null)
                 {
                     return Result<Match?>.Failure("Just Team Captin can Update The Score");

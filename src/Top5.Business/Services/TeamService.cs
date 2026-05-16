@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Top5.Business.Result;
 using Top5.Contracts.DTOs;
 using Top5.Contracts.Helper;
@@ -116,6 +117,7 @@ namespace Top5.Business.Services
 
         public async Task<Result<IEnumerable<Team>>> UpdateStatsAsync(UpdateTeamStatsDto dto)
         {
+            await using var transaction = await _repository.BeginTransactionAsync();
             try
             {
                 var homeTeam = await _repository.GetByIdAsync(dto.homeId);
@@ -150,26 +152,29 @@ namespace Top5.Business.Services
                 await _repository.UpdateAsync(homeTeam);
                 await _repository.UpdateAsync(awayTeam);
                 await RecalculateRanksAsync();
+                await _repository.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return Result<IEnumerable<Team>>.Success([homeTeam,awayTeam]);
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return Result<IEnumerable<Team>>.Failure($"An error occurred while updating the team stats: {ex.Message}");
             }
         }
         private async Task RecalculateRanksAsync()
         {
             var teams = (await _repository.GetAllAsync())
-                .Where(t => t.matchCount > 0)
-                .OrderByDescending(t => t.points)
-                .ThenByDescending(t => t.goals - t.goalsAgainest)
-                .ThenByDescending(t => t.goals)
-                .ToList();
+        .Where(t => t.matchCount > 0)
+        .OrderByDescending(t => t.points)
+        .ThenByDescending(t => t.goals - t.goalsAgainest)
+        .ThenByDescending(t => t.goals)
+        .ToList();
 
             for (int i = 0; i < teams.Count; i++)
             {
                 teams[i].Rank = i + 1;
-                await _repository.UpdateAsync(teams[i]);
+                await _repository.UpdateAsync(teams[i]); // بدون SaveChanges هنا
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Top5.Contracts.Helper;
@@ -12,6 +13,6 @@ namespace Top5.Data.Repositories
         Task<IEnumerable<Team?>> GetTeamsViewAsync();
         Task<PaginationResponse<Team>> SearchTeam(int pageNumber, int pageSize, string name);
         Task<PaginationResponse<Team>> LeaderBoard(int pageNumber, int pageSize);
-
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

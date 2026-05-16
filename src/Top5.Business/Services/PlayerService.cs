@@ -2,6 +2,7 @@ using Top5.Business.Result;
 using Top5.Contracts.DTOs;
 using Top5.Contracts.Helper;
 using Top5.Data.Repositories;
+using Top5.Domain.Entities;
 using Top5.Domain.Models;
 
 namespace Top5.Business.Services
@@ -98,6 +99,7 @@ namespace Top5.Business.Services
             try
             {
                 var p = await _repository.UpdateAsync(existingPlayer);
+                await _repository.SaveChangesAsync();
                 return Result<Player>.Success(p);
             }
             catch (Exception ex)
@@ -113,6 +115,7 @@ namespace Top5.Business.Services
             try
             {
                 var r = await _repository.DeleteAsync(id);
+                await _repository.SaveChangesAsync();
                 return Result<bool>.Success(r);
             }
             catch (Exception ex)

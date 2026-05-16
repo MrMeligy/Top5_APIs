@@ -12,6 +12,7 @@ namespace Top5.Data.Repositories
         Task<int> Count(Expression<Func<T, bool>> predicate);
         Task<T> AddAsync(T entity);
         Task<T> UpdateAsync(T entity);
+        Task SaveChangesAsync();
         Task<bool> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
     }

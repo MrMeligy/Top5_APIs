@@ -36,6 +36,7 @@ namespace Top5.Business.Services
                 }
                 var teamPlayer = _mapper.Map<TeamPlayers>(dto);
                 var response = await _repository.AddAsync(teamPlayer);
+                await _repository.SaveChangesAsync();
                 return Result<TeamPlayers>.Success(response);
             }
             catch (Exception ex)
