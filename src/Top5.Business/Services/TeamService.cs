@@ -10,7 +10,7 @@ namespace Top5.Business.Services
     public class TeamService : ITeamService
     {
         private readonly ITeamRepository _repository;
-
+        private static readonly SemaphoreSlim _rankLock = new SemaphoreSlim(1, 1);
         public TeamService(ITeamRepository repository)
         {
             _repository = repository;
@@ -151,9 +151,17 @@ namespace Top5.Business.Services
                 }
                 await _repository.UpdateAsync(homeTeam);
                 await _repository.UpdateAsync(awayTeam);
-                await RecalculateRanksAsync();
-                await _repository.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await _rankLock.WaitAsync();
+                try
+                {
+                    await RecalculateRanksAsync();
+                    await _repository.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                finally
+                {
+                    _rankLock.Release(); // ✅ دايماً اتفرج حتى لو حصل exception
+                }
                 return Result<IEnumerable<Team>>.Success([homeTeam,awayTeam]);
             }
             catch (Exception ex)
