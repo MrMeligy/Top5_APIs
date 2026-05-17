@@ -169,7 +169,8 @@ namespace Top5.Business.Services
                 await transaction.RollbackAsync();
                 return Result<IEnumerable<Team>>.Failure($"An error occurred while updating the team stats: {ex.Message}");
             }
-        }
+        }   
+        //test open claw skill
         private async Task RecalculateRanksAsync()
         {
             var teams = (await _repository.GetAllAsync())
