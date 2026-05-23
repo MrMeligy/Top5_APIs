@@ -19,11 +19,14 @@ namespace Top5.Domain.Entities
         public DateTime endTime { get; set; }
         public MatchStatues statues { get; set; } = MatchStatues.Pending;
         public string matchFormat { get; set; } = "5 vs 5";
+        public Guid? ReservationId { get; set; }
         public bool isComptitve { get; set; }
         [JsonIgnore]
         public Team homeTeam { get; set; }
         [JsonIgnore]
         public Team awayTeam { get; set; }
+        [JsonIgnore]
+        public Reservation Reservation { get; set; }
 
     }
 }
