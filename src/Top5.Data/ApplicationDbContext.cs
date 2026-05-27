@@ -19,8 +19,6 @@ namespace Top5.Data
         public DbSet<MatchPlayers> MatchPlayers { get; set; }
         public DbSet<Token> RefreshTokens { get; set; }
         public DbSet<Pitch> Pitches { get; set; }
-        public DbSet<Reservation> Reservations { get; set; }
-        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
