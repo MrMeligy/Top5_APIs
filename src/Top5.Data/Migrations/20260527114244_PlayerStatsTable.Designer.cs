@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Top5.Data;
 
@@ -11,9 +12,11 @@ using Top5.Data;
 namespace Top5.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527114244_PlayerStatsTable")]
+    partial class PlayerStatsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,12 +111,11 @@ namespace Top5.Data.Migrations
 
                     b.HasKey("id");
 
+                    b.HasIndex("matchId");
+
                     b.HasIndex("playerId");
 
                     b.HasIndex("teamId");
-
-                    b.HasIndex("matchId", "playerId")
-                        .IsUnique();
 
                     b.ToTable("MatchPlayers");
                 });

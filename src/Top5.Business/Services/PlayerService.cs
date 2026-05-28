@@ -15,6 +15,7 @@ namespace Top5.Business.Services
         {
             _repository = repository;
         }
+        // get player details from player table and states from playerstates table and map them to player details dto
         public async Task<Result<PlayerDto?>> GetPlayerDtoById(Guid id)
         {
             try
@@ -36,7 +37,6 @@ namespace Top5.Business.Services
                     assists = p.assists,
                     saves = p.saves,
                     matchCount = p.matchCount,
-                    rate = p.rate,
                     team = p.team
                 };
                 return Result<PlayerDto?>.Success(player);
@@ -60,16 +60,6 @@ namespace Top5.Business.Services
             var p = await _repository.GetAllAsync();
             return Result<IEnumerable<Player>>.Success(p);
         }
-
-        //registeration is handled by auth service, so we don't need this method in player service
-        //public async Task<Result<Player>> CreateAsync(Player player)
-        //{
-        //    if (player.id == Guid.Empty)
-        //    {
-        //        player.id = Guid.NewGuid();
-        //    }
-        //    return await _repository.AddAsync(player);
-        //}
 
         public async Task<Result<Player>> UpdateAsync(Guid id, UpdatePlayerDto player)
         {

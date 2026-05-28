@@ -160,7 +160,7 @@ namespace Top5.Business.Services
                 }
                 finally
                 {
-                    _rankLock.Release(); // ✅ دايماً اتفرج حتى لو حصل exception
+                    _rankLock.Release(); // دايماً اتفرج حتى لو حصل exception
                 }
                 return Result<IEnumerable<Team>>.Success([homeTeam,awayTeam]);
             }

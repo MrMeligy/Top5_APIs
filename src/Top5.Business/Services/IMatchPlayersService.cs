@@ -12,7 +12,7 @@ namespace Top5.Business.Services
         Task<Result<MatchPlayerDto?>> GetPlayerStatsInMatchAsync(Guid matchId, Guid playerId);
         Task<Result<PaginationResponse<MatchPlayerDto>?>> GetPlayerMatchesByTeamAsync(Guid teamId, Guid playerId, int pageSize, int pageNumber);
         Task<Result<PlayerStatsDto?>> GetPlayerTeamStatsAsync(Guid teamId, Guid playerId);
-        Task<Result<PlayerStatsDto?>> GetPlayerStats(Guid playerId);
+        Task<Result<PlayerStats?>> GetPlayerStats(Guid playerId);
         Task<Result<MatchPlayerDto>> CreateAsync(CreateMatchPlayerDto dto,Guid captinId);
     }
 }

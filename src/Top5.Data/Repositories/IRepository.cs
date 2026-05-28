@@ -1,9 +1,11 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 
 namespace Top5.Data.Repositories
 {
     public interface IRepository<T> where T : class
     {
+
         Task<T?> GetByIdAsync(Guid id);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetAllAsync();
@@ -15,6 +17,8 @@ namespace Top5.Data.Repositories
         Task SaveChangesAsync();
         Task<bool> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
+        Task<IDbContextTransaction> BeginTransactionAsync();
+
     }
 }
 

@@ -1,5 +1,6 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq.Expressions;
 
 namespace Top5.Data.Repositories
 {
@@ -86,6 +87,10 @@ namespace Top5.Data.Repositories
         {
             await _context.SaveChangesAsync();
 
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
     }
 }

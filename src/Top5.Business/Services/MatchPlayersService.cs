@@ -14,22 +14,26 @@ namespace Top5.Business.Services
         private readonly IMatchRepository _matchRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamPlayersRepository _teamPlayerRepository;
+        private readonly IRepository<PlayerStats> _playerStatsRepo;
         private readonly IMapper _mapper;
 
         public MatchPlayersService(IMatchPlayerRepository repository,IMatchRepository matchRepository,
-            ITeamRepository teamRepository,IMapper mapper,ITeamPlayersRepository teamPlayersRepository)
+            ITeamRepository teamRepository,IMapper mapper,ITeamPlayersRepository teamPlayersRepository,IRepository<PlayerStats> playerStatsRepo)
         {
             _repository = repository;
             _matchRepository = matchRepository;
             _teamRepository = teamRepository;
             _teamPlayerRepository = teamPlayersRepository;
+            _playerStatsRepo = playerStatsRepo;
             _mapper = mapper;
         }
 
         public async Task<Result<MatchPlayerDto>> CreateAsync(CreateMatchPlayerDto dto,Guid captinId)
         {
+            
             try
             {
+
                 var match = await _matchRepository.GetByIdAsync(dto.matchId);
                 if (match == null)
                 {
@@ -77,11 +81,32 @@ namespace Top5.Business.Services
                 {
                    return Result<MatchPlayerDto>.Failure("The Assists More Than Match Score!");
                 }
-                var matchPlayer = _mapper.Map<MatchPlayers>(dto);
-                var response = await _repository.AddAsync(matchPlayer);
-                await _repository.SaveChangesAsync();
-                var mapped = _mapper.Map<MatchPlayerDto>(response);
-                return Result<MatchPlayerDto>.Success(mapped);
+                var playerStats = await _playerStatsRepo.FirstOrDefaultAsync(ps => ps.PlayerId == dto.playerId);
+                var transactionResult = await _repository.BeginTransactionAsync();
+                try
+                {
+                    var matchPlayer = _mapper.Map<MatchPlayers>(dto);
+                    var response = await _repository.AddAsync(matchPlayer);
+                    if (playerStats == null)
+                    {
+                        return Result<MatchPlayerDto>.Failure("The Player Stats Not Found!");
+                    }
+                    await _repository.SaveChangesAsync();
+                    playerStats.matchCount += 1;
+                    playerStats.goals += dto.goals;
+                    playerStats.assists += dto.assists;
+                    playerStats.saves += dto.saves;
+                    playerStats.ModifiedOn = DateTime.UtcNow;
+                    await _playerStatsRepo.SaveChangesAsync();
+                    await transactionResult.CommitAsync();
+                    var mapped = _mapper.Map<MatchPlayerDto>(response);
+                    return Result<MatchPlayerDto>.Success(mapped);
+                }
+                catch (Exception ex)
+                {
+                    await transactionResult.RollbackAsync();
+                    return Result<MatchPlayerDto>.Failure(ex.Message);
+                }
 
             }
             catch (Exception ex)
@@ -133,16 +158,16 @@ namespace Top5.Business.Services
             }
         }
 
-        public async Task<Result<PlayerStatsDto?>> GetPlayerStats(Guid playerId)
+        public async Task<Result<PlayerStats?>> GetPlayerStats(Guid playerId)
         {
             try
             {
-                var response =  await _repository.GetPlayerStats(playerId);
-                return Result<PlayerStatsDto?>.Success(response);
+                var response =  await _playerStatsRepo.FirstOrDefaultAsync(ps => ps.PlayerId == playerId);
+                return Result<PlayerStats?>.Success(response);
             }
             catch (Exception ex)
             {
-                return Result<PlayerStatsDto?>.Failure(ex.Message);
+                return Result<PlayerStats?>.Failure(ex.Message);
             }
         }
 

@@ -18,7 +18,6 @@ namespace Top5.Data.Projections
         public int assists { get; set; }
         public int saves { get; set; }
         public int matchCount { get; set; }
-        public double rate { get; set; }
         public Team? team { get; set; }
     }
 }

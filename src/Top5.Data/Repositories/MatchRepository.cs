@@ -240,15 +240,17 @@ namespace Top5.Data.Repositories
             );
             return true;
         }
-
+        //need error handling
         public async Task<Match?> UpdateMatchScoreAsync(Guid id, Guid captinId, int score)
         {
-            var isHomeTeam = _dbSet.Any(m => m.id == id && m.homeTeam.captinId == captinId);
-            var isAwayTeam = false;
-            if (!isHomeTeam)
-                isAwayTeam = _dbSet.Any(m => m.id == id && m.awayTeam.captinId == captinId);
+            var match = await _dbSet.FirstOrDefaultAsync(m => m.id == id);
+            var isHomeTeam = match != null && match.homeTeam.captinId == captinId;
+            var isAwayTeam = match != null && match.awayTeam.captinId == captinId;
+
             if (isHomeTeam)
             {
+                if(match!.IsHomeCaptinUpdated)
+                    return null; 
                 await _dbSet.Where(m => m.id == id)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(m => m.homeScore, score)
@@ -256,6 +258,8 @@ namespace Top5.Data.Repositories
             }
             else if (isAwayTeam)
             {
+                if (match!.IsAwayCaptinUpdated)
+                    return null;
                 await _dbSet.Where(m => m.id == id)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(m => m.awayScore, score)

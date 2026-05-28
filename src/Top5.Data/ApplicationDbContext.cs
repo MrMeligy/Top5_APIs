@@ -13,6 +13,7 @@ namespace Top5.Data
 
         public DbSet<SysSetting> SysSettings { get; set; }
         public DbSet<Player> Players { get; set; }
+        public DbSet<PlayerStats> PlayerStats { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Match> Matches { get; set; }
         public DbSet<TeamPlayers> TeamPlayers { get; set; }
@@ -23,6 +24,10 @@ namespace Top5.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<PlayerStats>(entity =>
+            {
+                entity.HasKey(e => e.PlayerId);
+            });
             modelBuilder.Entity<Token>()
             .Property(x => x.id)
             .ValueGeneratedOnAdd();
@@ -85,7 +90,10 @@ namespace Top5.Data
             // Configure MatchPlayers
             modelBuilder.Entity<MatchPlayers>(entity =>
             {
+
                 entity.HasKey(e => e.id);
+                entity.HasIndex(mp => new { mp.matchId, mp.playerId })
+                    .IsUnique();
                 entity.HasOne(e => e.match)
                     .WithMany()
                     .HasForeignKey(e => e.matchId)

@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -19,14 +20,16 @@ namespace Top5.Business.Services
     public class AuthService : IAuthService
     {
         private readonly IPlayerRepository _playerRepo;
+        private readonly IRepository<PlayerStats> _playerStatsRepo;
         private readonly IRepository<Token> _tokens;
         private readonly IConfiguration _config;
 
-        public AuthService(IPlayerRepository playerRepository,IConfiguration config,IRepository<Token> tokens)
+        public AuthService(IPlayerRepository playerRepository,IConfiguration config,IRepository<Token> tokens,IRepository<PlayerStats> playerStatsRepo)
         {
             _playerRepo = playerRepository;
             _config = config;
             _tokens = tokens;
+            _playerStatsRepo = playerStatsRepo;
         }
 
 
@@ -54,7 +57,7 @@ namespace Top5.Business.Services
                     expiresAt = DateTime.UtcNow.AddDays(7),
                     hashedToken = HashToken(refreshToken),
                 });
-
+                await _tokens.SaveChangesAsync();
                 return Result<AuthResponseDto?>.Success(
                         new AuthResponseDto()
                         {
@@ -70,6 +73,7 @@ namespace Top5.Business.Services
         }
 
         // Registration
+        
         public async Task<Result<AuthResponseDto?>> register(Player player)
         {
             try
@@ -79,7 +83,15 @@ namespace Top5.Business.Services
                     return Result<AuthResponseDto?>.Failure("Already Registerd"); ;
                 }
                 player.password = BCrypt.Net.BCrypt.HashPassword(player.password);
+                //Create Player And Create Player Stats In One Transaction
+                var transaction = await _playerRepo.BeginTransactionAsync();
+                try
+                {
                 await _playerRepo.AddAsync(player);
+                await _playerRepo.SaveChangesAsync();
+                await _playerStatsRepo.AddAsync(new PlayerStats() { PlayerId = player.id });
+                await _playerStatsRepo.SaveChangesAsync();
+                await transaction.CommitAsync();
                 var refreshToken = GenerateRefreshToken();
                 await _tokens.AddAsync(new Token()
                 {
@@ -87,7 +99,6 @@ namespace Top5.Business.Services
                     createdAt = DateTime.UtcNow,
                     expiresAt = DateTime.UtcNow.AddDays(7),
                     hashedToken = HashToken(refreshToken),
-
                 });
                 return Result<AuthResponseDto?>.Success(
                     new AuthResponseDto()
@@ -96,6 +107,12 @@ namespace Top5.Business.Services
                         refreshToken = refreshToken
                     }
                 );
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return Result<AuthResponseDto?>.Failure(ex.Message);
+                }
             }
             catch (Exception ex)
             {

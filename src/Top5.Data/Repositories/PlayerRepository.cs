@@ -53,19 +53,9 @@ namespace Top5.Data.Repositories
             if (player == null)
                 return null;
 
-            var stats = await _context.MatchPlayers
+            var stats = await _context.PlayerStats
                 .AsNoTracking()
-                .Where(mp => mp.playerId == id)
-                .GroupBy(_ => 1)
-                .Select(g => new
-                {
-                    Goals = g.Sum(x => x.goals),
-                    Assists = g.Sum(x => x.assists),
-                    Saves = g.Sum(x => x.saves),
-                    Matches = g.Count(),
-                    rate = g.Average(x => x.rate)
-
-                })
+                .Where(s => s.PlayerId == id)   
                 .FirstOrDefaultAsync();
 
             var team = await _context.TeamPlayers
@@ -90,11 +80,10 @@ namespace Top5.Data.Repositories
                 phone = player.phone,
                 level = player.level,
 
-                goals = stats?.Goals ?? 0,
-                assists = stats?.Assists ?? 0,
-                saves = stats?.Saves ?? 0,
-                matchCount = stats?.Matches ?? 0,
-                rate = stats?.rate ?? 0.0,
+                goals = stats?.goals ?? 0,
+                assists = stats?.assists ?? 0,
+                saves = stats?.saves ?? 0,
+                matchCount = stats?.matchCount ?? 0,
 
                 team = teamInfo
             };

@@ -13,6 +13,5 @@ namespace Top5.Data.Repositories
         Task<IEnumerable<Team?>> GetTeamsViewAsync();
         Task<PaginationResponse<Team>> SearchTeam(int pageNumber, int pageSize, string name);
         Task<PaginationResponse<Team>> LeaderBoard(int pageNumber, int pageSize);
-        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

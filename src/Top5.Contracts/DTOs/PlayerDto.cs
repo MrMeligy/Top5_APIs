@@ -16,7 +16,6 @@ namespace Top5.Contracts.DTOs
         public int goals { get; set; }
         public int assists { get; set; }
         public int saves { get; set; }
-        public double rate { get; set; }
         public DateOnly dob { get; set; }
         public Team? team { get; set; }
     }

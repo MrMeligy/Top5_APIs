@@ -15,10 +15,7 @@ namespace Top5.Data.Repositories
         {
         }
 
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await _context.Database.BeginTransactionAsync();
-        }
+        
 
         public async Task<Team?> GetByIdViewAsync(Guid id)
         {

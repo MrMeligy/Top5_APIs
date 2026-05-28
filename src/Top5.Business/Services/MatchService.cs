@@ -226,11 +226,12 @@ namespace Top5.Business.Services
                 var match = await _repository.GetByIdAsync(id);
                 if (match == null)
                     return Result<Match?>.Failure("Match not found");
+
                 var response = await _repository.UpdateMatchScoreAsync(id, captinId, score);
 
                 if (response == null)
                 {
-                    return Result<Match?>.Failure("Just Team Captin can Update The Score");
+                    return Result<Match?>.Failure("Just Team Captin can Update The Score Or Match score already updated");
                 }
                 bool isScoreUpdated = await _repository.IsScoreUpdated(id);
                 if (isScoreUpdated)
