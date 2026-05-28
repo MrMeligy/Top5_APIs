@@ -43,6 +43,9 @@ namespace Top5.Data
                 entity.Property(e => e.phone).IsRequired();
                 entity.HasIndex(e => new {e.username,e.phone }).IsUnique();
                 entity.Property(e => e.password).IsRequired();
+                entity.HasOne(p => p.Stats)
+                .WithOne(ps => ps.player)
+                .HasForeignKey<PlayerStats>(ps => ps.PlayerId);
             });
 
             // Configure Team

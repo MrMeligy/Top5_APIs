@@ -24,6 +24,7 @@ namespace Top5.Domain.Models
         public Positions position { get; set; }
         public int level { get; set; }
         public DateOnly dob { get; set; }
-        
+        public PlayerStats Stats { get; set; }
+
     }
 }
