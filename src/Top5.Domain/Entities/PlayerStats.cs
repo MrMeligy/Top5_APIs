@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using System.Text.Json.Serialization;
 using Top5.Domain.Models;
 
 namespace Top5.Domain.Entities
@@ -17,6 +18,7 @@ namespace Top5.Domain.Entities
         public int saves { get; set; }  = 0;
         public int matchCount { get; set; } = 0;
         public DateTime ModifiedOn { get; set; } = DateTime.Now;
+        [JsonIgnore]
         public Player player { get; set; }
     }
 }
