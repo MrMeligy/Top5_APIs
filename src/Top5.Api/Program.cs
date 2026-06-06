@@ -29,12 +29,14 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamPlayersRepository, TeamPlayersRepository>();
 builder.Services.AddScoped<IStatesRepository, StatesRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 
 
 
 
 // Register Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IPitchService, PitchService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
@@ -42,7 +44,7 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<ITeamPlayersService, TeamPlayersService>();
 builder.Services.AddScoped<IMatchPlayersService, MatchPlayersService>();
 builder.Services.AddScoped<IStatesService, StatesService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 builder.Services.AddCors(options =>
 {
