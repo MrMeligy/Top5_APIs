@@ -36,6 +36,7 @@ builder.Services.AddScoped<IStatesRepository, StatesRepository>();
 
 // Register Services
 builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<IPitchService, PitchService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<ITeamPlayersService, TeamPlayersService>();
