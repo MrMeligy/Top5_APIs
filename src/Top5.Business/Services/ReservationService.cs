@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Top5.Business.Result;
+using Top5.Contracts.DTOs;
 using Top5.Contracts.Helper;
 using Top5.Data.Repositories;
 using Top5.Domain.Entities;
@@ -10,35 +11,42 @@ namespace Top5.Business.Services
 {
     public class ReservationService : IReservationService
     {
-        private readonly IReservationService _reservationService;
         private readonly IReservationRepository _repo;
         private static readonly SemaphoreSlim _rankLock = new SemaphoreSlim(1, 1);
 
-        public ReservationService(IReservationService reservationService, IReservationRepository reservationRepository)
+        public ReservationService( IReservationRepository reservationRepository)
         {
-            _reservationService = reservationService;
             _repo = reservationRepository;
         }
 
-        public async Task<Result<Reservation>> CreateReservationAsync(Reservation reservation)
+        public async Task<Result<Reservation>> CreateReservationAsync(CreateReservationDto reservation)
         {
             await using var transaction = await _repo.BeginTransactionAsync();
             await _rankLock.WaitAsync();
             try
             {
                 bool hasConflict = await _repo.IsHasConflict(
-                    reservation.PitchId,
-                    reservation.From,
-                    reservation.To);
+                    reservation.pitchId,
+                    reservation.startDate,
+                    reservation.endDate);
 
                 if (hasConflict)
                     return Result<Reservation>.Failure("The reservation conflicts with an existing reservation.");
 
-                await _repo.AddAsync(reservation);
+                var newReservation = new Reservation
+                {
+                    PitchId = reservation.pitchId,
+                    PlayerId = reservation.playerId,
+                    IsMatchOnApp = reservation.IsMatchOnApp,
+                    From = reservation.startDate,
+                    To = reservation.endDate
+                };
+
+                await _repo.AddAsync(newReservation);
                 await _repo.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Result<Reservation>.Success(reservation);
+                return Result<Reservation>.Success(newReservation);
             }
             catch (Exception ex)
             {

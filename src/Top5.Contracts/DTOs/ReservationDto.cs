@@ -16,6 +16,6 @@ namespace Top5.Contracts.DTOs
         public string playerName { get; set; }
         public string playerPicUrl { get; set; }
         public string pitchName { get; set; }
-        public string pitchPicUrl { get; set;
+        public string pitchPicUrl { get; set; }
     }
 }
