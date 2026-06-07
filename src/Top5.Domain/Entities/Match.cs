@@ -25,6 +25,8 @@ namespace Top5.Domain.Entities
         public Team homeTeam { get; set; }
         [JsonIgnore]
         public Team awayTeam { get; set; }
+        [JsonIgnore]
+        public Reservation Reservation { get; set; }
 
     }
 }

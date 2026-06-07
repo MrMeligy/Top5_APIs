@@ -4,7 +4,9 @@ namespace Top5.Contracts.DTOs
     public class MatchDto
     {
         public Guid id { get; set; }
+        public Guid reservationId { get; set; }
         public Guid homeTeamId { get; set; }
+        public int pitchId { get; set; }
         public string homeTeamName { get; set; }
         public string homePic { get; set; }
         public Guid awayTeamId { get; set; }

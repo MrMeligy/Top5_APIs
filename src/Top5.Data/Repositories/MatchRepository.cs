@@ -37,6 +37,7 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .ToListAsync();
 
             return new PaginationResponse<Match>
@@ -54,6 +55,7 @@ namespace Top5.Data.Repositories
             return await _dbSet
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.id == id);
         }
@@ -63,6 +65,7 @@ namespace Top5.Data.Repositories
             return await _dbSet
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam) 
+                .Include(m => m.Reservation) 
                 .Where(m => (m.homeTeamId == teamId || m.awayTeamId == teamId) && DateOnly.FromDateTime(m.kickOff) == date && m.statues != MatchStatues.Rejected) //DateOnly.FromDateTime(dateTime)
                 .OrderBy(m => m.kickOff)
                 .AsNoTracking()
@@ -83,6 +86,7 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .ToListAsync();
 
             return new PaginationResponse<Match>
@@ -109,6 +113,7 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .ToListAsync();
 
             return new PaginationResponse<Match>
@@ -127,6 +132,7 @@ namespace Top5.Data.Repositories
                 .Where(m => (m.homeTeamId == teamId || m.awayTeamId == teamId) && m.kickOff > DateTime.UtcNow && m.statues == MatchStatues.Accepted)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .OrderBy(m => m.kickOff)
                 .FirstOrDefaultAsync();
         }
@@ -145,6 +151,7 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .ToListAsync();
 
             return new PaginationResponse<Match>
@@ -171,6 +178,7 @@ namespace Top5.Data.Repositories
                 .Take(pageSize)
                 .Include(m => m.homeTeam)
                 .Include(m => m.awayTeam)
+                .Include(m => m.Reservation)
                 .ToListAsync();
 
             return new PaginationResponse<Match>
@@ -199,6 +207,7 @@ namespace Top5.Data.Repositories
                     .Take(pageSize)
                     .Include(m => m.homeTeam)
                     .Include(m => m.awayTeam)
+                    .Include(m => m.Reservation)
                     .ToListAsync();
 
                 return new PaginationResponse<Match>

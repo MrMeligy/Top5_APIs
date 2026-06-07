@@ -24,7 +24,14 @@ namespace Top5.Api.Mapping
                .ForMember(dest => dest.statues,
                    opt => opt.MapFrom(src => src.statues))
                .ForMember(dest => dest.kickOff,
-                   opt => opt.MapFrom(src => src.kickOff));
+                   opt => opt.MapFrom(src => src.Reservation.From))
+               .ForMember(dest => dest.endTime,
+                   opt => opt.MapFrom(src => src.Reservation.To))
+               .ForMember(dest => dest.reservationId,
+                   opt => opt.MapFrom(src => src.ReservationId))
+               .ForMember(dest => dest.pitchId,
+                   opt => opt.MapFrom(src => src.Reservation.PitchId))
+               ;
             CreateMap<CreateMatchDto, Match>();
         }
     }

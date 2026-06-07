@@ -19,7 +19,7 @@ namespace Top5.Business.Services
             _repo = reservationRepository;
         }
 
-        public async Task<Result<Reservation>> CreateReservationAsync(CreateReservationDto reservation)
+        public async Task<Result<Reservation>> CreateReservationAsync(CreateReservationDto reservation,Guid playerId)
         {
             await using var transaction = await _repo.BeginTransactionAsync();
             await _rankLock.WaitAsync();
@@ -36,7 +36,7 @@ namespace Top5.Business.Services
                 var newReservation = new Reservation
                 {
                     PitchId = reservation.pitchId,
-                    PlayerId = reservation.playerId,
+                    PlayerId = playerId,
                     IsMatchOnApp = reservation.IsMatchOnApp,
                     From = reservation.startDate,
                     To = reservation.endDate

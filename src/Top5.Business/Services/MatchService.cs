@@ -13,14 +13,16 @@ namespace Top5.Business.Services
         private readonly IMatchRepository _repository;
         private readonly ITeamService _tmsrvc;
         private readonly ITeamRepository _tmrepo;
+        private readonly IReservationRepository _reservrepo;
         private readonly IMapper _mapper;
 
-        public MatchService(IMatchRepository repository, ITeamService tmsrvc, IMapper mapper, ITeamRepository tmrepo)
+        public MatchService(IMatchRepository repository, ITeamService tmsrvc, IMapper mapper, ITeamRepository tmrepo, IReservationRepository reservrepo)
         {
             _repository = repository;
             _tmsrvc = tmsrvc;
             _mapper = mapper;
             _tmrepo = tmrepo;
+            _reservrepo = reservrepo;
         }
 
         public async Task<Result<bool>> ChangeStatus(Guid matchId, MatchStatues newStatus,Guid captinId)
@@ -62,14 +64,24 @@ namespace Top5.Business.Services
         {
             try
             {
-                if(dto.kickOff <= DateTime.Now.AddMinutes(59))
+                var reservation = await _reservrepo.GetByIdAsync(dto.reservationId);
+                if (reservation == null)
+                {
+                    return Result<MatchDto>.Failure("You Must Reserve a Pitch First");
+                }
+                if (reservation.From >= reservation.To)
+                {
+                    return Result<MatchDto>.Failure("End Time Must be after KickOff");
+                }
+                if (reservation.From <= DateTime.Now.AddMinutes(59))
                 {
                     return Result<MatchDto>.Failure("Match Can't be in past or just now");
                 }
-                if(dto.endTime <= dto.kickOff.AddMinutes(59))
+                if(reservation.To <= reservation.From.AddMinutes(59))
                 {
                     return Result<MatchDto>.Failure("Match Can't be less than 1 hour");
                 }
+                
                 var homeTeam = await _tmrepo.GetByIdAsync(dto.homeTeamId);
                 var awayTeam = await _tmrepo.GetByIdAsync(dto.awayTeamId);
                 if (homeTeam == null||awayTeam==null)
@@ -84,7 +96,7 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchDto>.Failure("Can't Make Match with the same team");
                 }
-                bool hasAnotherMatches = await _repository.HasAnotherMatch(dto.kickOff,dto.endTime);
+                bool hasAnotherMatches = await _repository.HasAnotherMatch(reservation.From, reservation.To);
                 if (hasAnotherMatches)
                 {
                     return Result<MatchDto>.Failure("There is another match at this time");

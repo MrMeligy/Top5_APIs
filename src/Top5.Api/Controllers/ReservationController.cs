@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Top5.Business.Services;
 using Top5.Contracts.DTOs;
 using Top5.Domain.Entities;
@@ -8,6 +10,7 @@ namespace Top5.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReservationController : BaseController
     {
         private readonly IReservationService _reservationService;
@@ -27,12 +30,13 @@ namespace Top5.Api.Controllers
             }
             return Success(result);
         }
-        [HttpGet("{playerId:Guid}")]
+        [HttpGet("PlayerReservations")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetReservationByPlayer(Guid playerId,int pageSize,int pageNumber )
+        public async Task<IActionResult> GetReservationByPlayer(int pageSize,int pageNumber )
         {
-            // get player id from token
-            var result = await _reservationService.GetPlayerReservationsAsync(playerId,pageSize,pageNumber);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = Guid.Parse(userId!);
+            var result = await _reservationService.GetPlayerReservationsAsync(id,pageSize,pageNumber);
             if (!result.IsSuccess)
             {
                 return Failed(result.Error ?? "An error occurred while retrieving Reservations.", StatusCodes.Status500InternalServerError);
@@ -43,10 +47,9 @@ namespace Top5.Api.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> AddReservation([FromBody] CreateReservationDto reservation)
         {
-            
-            // get player id from token
-
-            var result = await _reservationService.CreateReservationAsync(reservation);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = Guid.Parse(userId!);
+            var result = await _reservationService.CreateReservationAsync(reservation,id);
             if (!result.IsSuccess)
             {
                 return Failed(result.Error ?? "An error occurred while Create Reservations.", StatusCodes.Status500InternalServerError);

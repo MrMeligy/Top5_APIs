@@ -10,7 +10,7 @@ namespace Top5.Business.Services
 {
     public interface IReservationService
     {
-        Task<Result<Reservation>> CreateReservationAsync(CreateReservationDto reservation);  
+        Task<Result<Reservation>> CreateReservationAsync(CreateReservationDto reservation,Guid playerId);  
         Task<Result<PaginationResponse<Reservation>>> GetPlayerReservationsAsync(Guid playerId, int pageSize, int pageNumber);
         Task<Result<IEnumerable<Reservation>>> GetReservationsByDayAsync(DateTime day);
     }
