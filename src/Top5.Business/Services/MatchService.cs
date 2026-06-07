@@ -60,7 +60,7 @@ namespace Top5.Business.Services
             }
         }
 
-        public async Task<Result<MatchDto>> CreateAsync(CreateMatchDto dto,Guid captinId)
+        public async Task<Result<MatchDto>> CreateAsync(CreateMatchDto dto, Guid captinId)
         {
             try
             {
@@ -69,6 +69,11 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchDto>.Failure("You Must Reserve a Pitch First");
                 }
+                if (reservation.PlayerId != captinId)
+                {
+                    return Result<MatchDto>.Failure("You Must Be The One Who Made The Reservation");
+                }
+
                 if (reservation.From >= reservation.To)
                 {
                     return Result<MatchDto>.Failure("End Time Must be after KickOff");
@@ -77,14 +82,14 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchDto>.Failure("Match Can't be in past or just now");
                 }
-                if(reservation.To <= reservation.From.AddMinutes(59))
+                if (reservation.To <= reservation.From.AddMinutes(59))
                 {
                     return Result<MatchDto>.Failure("Match Can't be less than 1 hour");
                 }
-                
+
                 var homeTeam = await _tmrepo.GetByIdAsync(dto.homeTeamId);
                 var awayTeam = await _tmrepo.GetByIdAsync(dto.awayTeamId);
-                if (homeTeam == null||awayTeam==null)
+                if (homeTeam == null || awayTeam == null)
                 {
                     return Result<MatchDto>.Failure("Team Not Exist");
                 }
@@ -101,11 +106,27 @@ namespace Top5.Business.Services
                 {
                     return Result<MatchDto>.Failure("There is another match at this time");
                 }
-                var match = _mapper.Map<Match>(dto);
-                var response = await _repository.AddAsync(match);
-                await _repository.SaveChangesAsync();
-                var mapped = _mapper.Map<MatchDto>(response);
-                return Result<MatchDto>.Success(mapped);
+                var transaction = await _repository.BeginTransactionAsync();
+                try
+                {
+                    if (!reservation.IsMatchOnApp)
+                    {
+                        reservation.IsMatchOnApp = true;
+                        await _reservrepo.UpdateAsync(reservation);
+                        await _reservrepo.SaveChangesAsync();
+                    }
+                    var match = _mapper.Map<Match>(dto);
+                    var response = await _repository.AddAsync(match);
+                    await _repository.SaveChangesAsync();
+                    transaction.Commit();
+                    var mapped = _mapper.Map<MatchDto>(response);
+                    return Result<MatchDto>.Success(mapped);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return Result<MatchDto>.Failure(ex.Message);
+                }
             }
             catch (Exception ex)
             {
