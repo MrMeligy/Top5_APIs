@@ -148,6 +148,7 @@ namespace Top5.Business.Services
                     hashedToken = HashToken(newToken),
                     expiresAt = DateTime.UtcNow.AddDays(7),
                 });
+                await _tokens.SaveChangesAsync();
                 if (tokensCount > 5)
                 {
                     await _tokens.DeleteManyAsync(t => t.playerId == player.id && t.isRevoked == true);
